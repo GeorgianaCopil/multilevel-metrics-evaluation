@@ -129,7 +129,10 @@ public class Metric implements Serializable{
         @XmlEnumValue("COST")
         COST,
         @XmlEnumValue("QUALITY")
-        QUALITY
+        QUALITY,
+        //describes the elasticity of a monitored element
+        @XmlEnumValue("ELASTICITY")
+        ELASTICITY
     }
 
 }

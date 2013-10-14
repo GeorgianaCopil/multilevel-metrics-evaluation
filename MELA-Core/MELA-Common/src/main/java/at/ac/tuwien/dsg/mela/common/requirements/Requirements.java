@@ -20,6 +20,7 @@ package at.ac.tuwien.dsg.mela.common.requirements;
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Author: Daniel Moldovan 
@@ -32,6 +33,15 @@ public class Requirements {
 
     @XmlAttribute(name = "TargetServiceID", required = true)
     private String targetServiceID;
+    
+    
+    @XmlAttribute(name = "Name", required = true)
+    private String name;
+    
+    {
+        name = UUID.randomUUID().toString();
+    }
+    
 
     @XmlElement(name = "Requirement")
     private List<Requirement> requirements;
@@ -60,8 +70,40 @@ public class Requirements {
         this.requirements.add(requirement);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 
     public void deleteRequirement(Requirement requirement){
         this.requirements.remove(requirement);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Requirements other = (Requirements) obj;
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

@@ -1,11 +1,13 @@
 /**
- * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group E184
+ * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group
+ * E184
  *
- * This work was partially supported by the European Commission in terms of the CELAR FP7 project (FP7-ICT-2011-8 \#317790)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
+ * This work was partially supported by the European Commission in terms of the
+ * CELAR FP7 project (FP7-ICT-2011-8 \#317790)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,21 +23,22 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Author: Daniel Moldovan 
- * E-Mail: d.moldovan@dsg.tuwien.ac.at 
-
- **/
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at  *
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "MetricValue")
-public class MetricValue implements Comparable<MetricValue>,  Serializable {
-
+public class MetricValue implements Comparable<MetricValue>, Serializable {
+    
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "ValueType")
     @XmlEnum
-    public enum ValueType implements Serializable{
-
+    public enum ValueType implements Serializable {
+        
         @XmlEnumValue("NUMERIC")
         NUMERIC, @XmlEnumValue("TEXT")
         TEXT, @XmlEnumValue("ENUMERATION")
@@ -45,15 +48,15 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
     private Object value;
     @XmlAttribute(name = "ValueType", required = true)
     private ValueType valueType;
-
+    
     public ValueType getValueType() {
         return valueType;
     }
-
+    
     public void setValueType(ValueType valueType) {
         this.valueType = valueType;
     }
-
+    
     public MetricValue(Object value) {
         this.value = value;
         if (value instanceof Number) {
@@ -66,22 +69,23 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
                 valueType = ValueType.TEXT;
             }
         } else {
-            System.out.println("Unknown elements: " + value);
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unknown elements: " + value);
+            
         }
     }
-
+    
     public MetricValue() {
     }
-
+    
     public Object getValue() {
         return value;
     }
-
+    
     public String getValueRepresentation() {
         if (value instanceof Number) {
             String a;
             DecimalFormat df = new DecimalFormat("0.####");
-
+            
             String formatted = df.format(value);
 //            int index = formatted.indexOf(".");
 //
@@ -109,11 +113,11 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
         } else if (value instanceof String) {
             return value.toString();
         } else {
-            System.out.println("Unknown elements: " + value);
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unknown elements: " + value);
             return "-1";
         }
     }
-
+    
     public MetricValue clone() {
 //        Object cloneValue = null;
 //        if (  value instanceof Number) {
@@ -124,7 +128,7 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
 //        return new MetricValue(cloneValue);
         return new MetricValue(value);
     }
-
+    
     public void setValue(Object value) {
         this.value = value;
         if (value instanceof Number) {
@@ -137,10 +141,10 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
                 valueType = ValueType.TEXT;
             }
         } else {
-            System.out.println("Unknown elements: " + value);
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unknown elements: " + value);
         }
     }
-
+    
     public void sum(MetricValue metricValue) {
         if (value instanceof Number) {
             double oldVal = ((Number) value).doubleValue();
@@ -148,12 +152,12 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
             this.value = oldVal + newVal;
         }
     }
-
+    
     public void divide(int size) {
         if (value instanceof Number) {
             double oldVal = ((Number) value).doubleValue();
             this.value = oldVal / size;
-
+            
         }
     }
 
@@ -165,7 +169,7 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
      */
     @Override
     public int compareTo(MetricValue o) {
-
+        
         Object otherValue = o.getValue();
         switch (valueType) {
             case NUMERIC:
@@ -179,7 +183,7 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
                 return 0;
         }
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -188,21 +192,21 @@ public class MetricValue implements Comparable<MetricValue>,  Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
+        
         MetricValue that = (MetricValue) o;
-
+        
         if (value != null ? !value.equals(that.value) : that.value != null) {
             return false;
         }
-
+        
         return true;
     }
-
+    
     @Override
     public int hashCode() {
         return value != null ? value.hashCode() : 0;
     }
-
+    
     @Override
     public String toString() {
         return "" + value;

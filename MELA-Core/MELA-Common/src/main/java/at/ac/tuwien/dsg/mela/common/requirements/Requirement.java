@@ -109,4 +109,11 @@ public class Requirement {
     public void setMetric(Metric metric) {
         this.metric = metric;
     }
+
+    @Override
+    public String toString() {
+        return "Requirement{" + "conditions=" + conditions + ", metric=" + metric + '}';
+    }
+    
+    
 }

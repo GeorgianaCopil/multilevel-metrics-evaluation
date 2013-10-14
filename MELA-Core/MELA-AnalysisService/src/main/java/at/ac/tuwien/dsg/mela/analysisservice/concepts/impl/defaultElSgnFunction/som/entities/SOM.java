@@ -512,7 +512,7 @@ public class SOM implements Iterable<Neuron> {
      * @param newData
      * @return neuron on which the new data has been mapped to
      */
-    public Neuron updateMap(Neuron newData) {
+    public synchronized Neuron updateMap(Neuron newData) {
         //add 1 to the number of mapped situations
         numberOfMappedSituations.incrementAndGet();
 

@@ -51,7 +51,7 @@ public class CompositionOperation {
     @XmlAttribute(name = "value")
     private String value;
     @XmlElement(name = "ReferenceMetric")
-    private Metric targetMetric;
+    private Metric referenceMetric;
     @XmlAttribute(name = "MetricSourceMonitoredElementLevel", required = true)
     private MonitoredElement.MonitoredElementLevel metricSourceMonitoredElementLevel;
     @XmlElement(name = "SourceMonitoredElementID", required = false)
@@ -106,11 +106,11 @@ public class CompositionOperation {
     }
 
     public Metric getTargetMetric() {
-        return targetMetric;
+        return referenceMetric;
     }
 
     public void setTargetMetric(Metric targetMetric) {
-        this.targetMetric = targetMetric;
+        this.referenceMetric = targetMetric;
     }
 
     public ArrayList<CompositionOperation> getSubOperations() {
@@ -181,27 +181,32 @@ public class CompositionOperation {
         MonitoredElement MonitoredElement = elementMonitoringSnapshot.getMonitoredElement();
 
         //target metric might be null if a metric is created using the SET_VALUE operation type
-        if (targetMetric != null) {
+        if (referenceMetric != null) {
             //if the target metric is at this element, extract it, otherwise search it, else
             //search in the element children (composition rules search metrics for the target element level and the direct sub-level)
             if (this.getMetricSourceMonitoredElementLevel().equals(MonitoredElement.getLevel())) {
-                if (elementMonitoringSnapshot.containsMetric(targetMetric)) {
-                    valuesToBeProcessed.add(elementMonitoringSnapshot.getValueForMetric(targetMetric).clone());
+                if (elementMonitoringSnapshot.containsMetric(referenceMetric)) {
+                    valuesToBeProcessed.add(elementMonitoringSnapshot.getValueForMetric(referenceMetric).clone());
                 } else {
-                    Logger.getRootLogger().log(Level.WARN, "Metric " + targetMetric + " not found in " + MonitoredElement.getId());
+                    Logger.getRootLogger().log(Level.WARN, "Metric " + referenceMetric + " not found in " + MonitoredElement.getId());
                     return null;
                 }
             } else {
-                //search the metric in the direct children
-                for (MonitoredElementMonitoringSnapshot childSnapshot : elementMonitoringSnapshot.getChildren()) {
-                    //if source IDs have been supplied check if the snapshot belongs to a specified ID
+                List<MonitoredElementMonitoringSnapshot> childSnapshotForSpecificLevel = new ArrayList<MonitoredElementMonitoringSnapshot>();
+                for (MonitoredElementMonitoringSnapshot childSnapshot : elementMonitoringSnapshot) {
                     if (metricSourceMonitoredElementIDs.isEmpty() || metricSourceMonitoredElementIDs.contains(childSnapshot.getMonitoredElement().getId())) {
-                        if (childSnapshot.containsMetric(targetMetric)) {
-                            valuesToBeProcessed.add(childSnapshot.getValueForMetric(targetMetric).clone());
-                        } else {
-                            Logger.getRootLogger().log(Level.WARN, "Metric " + targetMetric + " not found in " + childSnapshot.getMonitoredElement().getId());
-                            return null;
+                        if (childSnapshot.getMonitoredElement().getLevel().equals(metricSourceMonitoredElementLevel)) {
+                            childSnapshotForSpecificLevel.add(childSnapshot);
                         }
+                    }
+                }
+                for (MonitoredElementMonitoringSnapshot childSnapshot : childSnapshotForSpecificLevel) {
+                    //if source IDs have been supplied check if the snapshot belongs to a specified ID
+                    if (childSnapshot.containsMetric(referenceMetric)) {
+                        valuesToBeProcessed.add(childSnapshot.getValueForMetric(referenceMetric).clone());
+                    } else {
+                        Logger.getRootLogger().log(Level.WARN, "Metric " + referenceMetric + " not found in " + childSnapshot.getMonitoredElement().getId());
+                        return null;
                     }
                 }
             }
@@ -389,9 +394,9 @@ public class CompositionOperation {
             }
             break;
             case SET_VALUE: {
-                    MetricValue metricValue = new MetricValue();
-                    metricValue.setValue(operator);
-                    result = metricValue;
+                MetricValue metricValue = new MetricValue();
+                metricValue.setValue(operator);
+                result = metricValue;
             }
             break;
             default:

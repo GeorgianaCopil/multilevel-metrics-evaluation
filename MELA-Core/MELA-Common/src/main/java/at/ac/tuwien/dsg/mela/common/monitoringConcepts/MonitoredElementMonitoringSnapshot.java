@@ -1,11 +1,13 @@
 /**
- * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group E184
+ * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group
+ * E184
  *
- * This work was partially supported by the European Commission in terms of the CELAR FP7 project (FP7-ICT-2011-8 \#317790)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
+ * This work was partially supported by the European Commission in terms of the
+ * CELAR FP7 project (FP7-ICT-2011-8 \#317790)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,7 +24,9 @@ import java.util.ArrayList;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,28 +35,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
- * Author: Daniel Moldovan 
- * E-Mail: d.moldovan@dsg.tuwien.ac.at 
-
- **/
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at *
+ *
+ */
 /**
  * Contains a MonitoredElement ID and associated metrics. Used in the
- * ServiceMonitoringSnapshotṡ
- * Represents also in XML a tree structure of monitored data, containing for each
- * node the MonitoredElement, a map of monitored data, and a list of children monitoring datas.
+ * ServiceMonitoringSnapshotṡ Represents also in XML a tree structure of
+ * monitored data, containing for each node the MonitoredElement, a map of
+ * monitored data, and a list of children monitoring datas.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="MonitoredElementSnapshot")
-public class MonitoredElementMonitoringSnapshot implements Serializable{
+@XmlRootElement(name = "MonitoredElementSnapshot")
+public class MonitoredElementMonitoringSnapshot implements Serializable, Iterable<MonitoredElementMonitoringSnapshot> {
 
     @XmlElement(name = "MonitoredElement", required = false)
     private MonitoredElement MonitoredElement;
-    
     @XmlElement(name = "Metrics", required = false)
     @XmlJavaTypeAdapter(MonitoringEntriesAdapter.class)
     private HashMap<Metric, MetricValue> monitoredData;
-    
-    @XmlElement(name="MonitoredElementSnapshot")
+    @XmlElement(name = "MonitoredElementSnapshot")
     private ArrayList<MonitoredElementMonitoringSnapshot> children;
 
     {
@@ -71,7 +72,7 @@ public class MonitoredElementMonitoringSnapshot implements Serializable{
 
     public MonitoredElementMonitoringSnapshot() {
     }
-    
+
     /**
      * adds new or overrides existent value
      */
@@ -139,5 +140,39 @@ public class MonitoredElementMonitoringSnapshot implements Serializable{
             monitoredData.keySet().retainAll(metrics);
         }
 
+    }
+
+    public Iterator<MonitoredElementMonitoringSnapshot> iterator() {
+        return new MyIterator(this);
+    }
+
+    private class MyIterator implements Iterator<MonitoredElementMonitoringSnapshot> {
+
+        List<MonitoredElementMonitoringSnapshot> toProcess;
+
+        {
+            toProcess = new ArrayList<MonitoredElementMonitoringSnapshot>();
+        }
+
+        public MyIterator(MonitoredElementMonitoringSnapshot root) {
+            toProcess.add(root);
+        }
+
+        public boolean hasNext() {
+            return !toProcess.isEmpty();
+        }
+
+        public MonitoredElementMonitoringSnapshot next() {
+            if (hasNext()) {
+                MonitoredElementMonitoringSnapshot next = toProcess.remove(0);
+                toProcess.addAll(next.getChildren());
+                return next;
+            }
+            return null;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
     }
 }

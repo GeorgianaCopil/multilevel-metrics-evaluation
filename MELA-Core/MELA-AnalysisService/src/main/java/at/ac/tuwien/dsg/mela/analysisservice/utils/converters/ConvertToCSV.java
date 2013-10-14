@@ -1,11 +1,13 @@
 /**
- * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group E184
+ * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group
+ * E184
  *
- * This work was partially supported by the European Commission in terms of the CELAR FP7 project (FP7-ICT-2011-8 \#317790)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
+ * This work was partially supported by the European Commission in terms of the
+ * CELAR FP7 project (FP7-ICT-2011-8 \#317790)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,15 +38,16 @@ import at.ac.tuwien.dsg.mela.analysisservice.concepts.ElasticitySpace;
 import at.ac.tuwien.dsg.mela.analysisservice.concepts.impl.defaultElPthwFunction.InMemoryEncounterRateElasticityPathway;
 import at.ac.tuwien.dsg.mela.analysisservice.concepts.impl.defaultElSgnFunction.som.entities.Neuron;
 
-
 /**
- * Author: Daniel Moldovan 
- * E-Mail: d.moldovan@dsg.tuwien.ac.at 
-
- **/
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at  *
+ *
+ */
 public class ConvertToCSV {
+
     /**
-     * File arranged as LEVEL NAME, LEVEL INDEX, USAGE per group, and then values, and then for each metric the DOMINANT,RARE, and NEUTRAL values split in columns
+     * File arranged as LEVEL NAME, LEVEL INDEX, USAGE per group, and then
+     * values, and then for each metric the DOMINANT,RARE, and NEUTRAL values
+     * split in columns
      *
      * @param groups
      * @param targetMetrics
@@ -132,7 +135,9 @@ public class ConvertToCSV {
     }
 
     /**
-     * File arranged as LEVEL NAME, LEVEL INDEX, USAGE per group, and then values, and then for each metric the DOMINANT,RARE, and NEUTRAL values split in columns
+     * File arranged as LEVEL NAME, LEVEL INDEX, USAGE per group, and then
+     * values, and then for each metric the DOMINANT,RARE, and NEUTRAL values
+     * split in columns
      *
      * @param elasticitySignature
      * @param destinationFile
@@ -156,7 +161,6 @@ public class ConvertToCSV {
 
         //sort after values
         Collections.sort(sortedAfterOccurrence, new Comparator<InMemoryEncounterRateElasticityPathway.SignatureEntry>() {
-            
             public int compare(InMemoryEncounterRateElasticityPathway.SignatureEntry signatureEntry, InMemoryEncounterRateElasticityPathway.SignatureEntry signatureEntry1) {
 //                Double sum1 = 0d;
 //                Double sum2 = 0d;
@@ -240,10 +244,12 @@ public class ConvertToCSV {
 
     }
 
-
     /**
-     * Metric, Boundary UP, BOUNDARY LOW for all metrics, then if elastic or not boolean, if elastic = 1, else -1 , elastic =
-     * @param space           the elasticity space from which we extract the info for the service element
+     * Metric, Boundary UP, BOUNDARY LOW for all metrics, then if elastic or not
+     * boolean, if elastic = 1, else -1 , elastic =
+     *
+     * @param space the elasticity space from which we extract the info for the
+     * service element
      * @param destinationFile the file in which we write the space
      */
     public static void writeElasticitySpaceToCSV(MonitoredElement MonitoredElement, ElasticitySpace space, List<Metric> metricsToWrite, String destinationFile) throws IOException {
@@ -277,8 +283,8 @@ public class ConvertToCSV {
             String line = "";
 
             //add metric values to line
-            for (Metric metric : metricsToWrite ) {
-                if(MonitoredElementMonitoringSnapshot.getMetrics().contains(metric)){
+            for (Metric metric : metricsToWrite) {
+                if (MonitoredElementMonitoringSnapshot.getMetrics().contains(metric)) {
                     MetricValue values = MonitoredElementMonitoringSnapshot.getMetricValue(metric);
 
                     MetricValue[] boundaryForMetric = boundaries.get(metric);
@@ -288,7 +294,7 @@ public class ConvertToCSV {
             }
 
             boolean isClean = entry.getAnalysisReport().isClean();
-            line += "\t" + isClean + "\t" + ((isClean)?1:-1);
+            line += "\t" + isClean + "\t" + ((isClean) ? 1 : -1);
 
             bufferedWriter.write(line);
             bufferedWriter.newLine();
@@ -301,7 +307,66 @@ public class ConvertToCSV {
 
     }
 
+    public static void writeWholeElasticitySpaceToCSV(MonitoredElement root, ElasticitySpace space, String destinationFile) throws IOException {
 
+        for (MonitoredElement monitoredElement : root) {
+            if(monitoredElement.getLevel().equals(MonitoredElement.MonitoredElementLevel.VM)){
+                continue;
+            }
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(destinationFile + "_" + monitoredElement.getId() + ".csv"));
+
+//        Map<Metric, List<MetricValue>> spaceForElement = space.getMonitoredDataForService(MonitoredElement);
+//        if (spaceForElement == null) {
+//            return;
+//        }
+            Map<Metric, MetricValue[]> boundaries = new HashMap<Metric, MetricValue[]>();
+            Map<Metric, List<MetricValue>> dataForElement = space.getMonitoredDataForService(monitoredElement);
+            //write file columns
+            {
+                String columns = "";
+                for (Metric metric : dataForElement.keySet()) {
+                    columns += "\t" + metric.getName() + "\tBOUNDARY_U_" + metric.getName() + "\tBOUNDARY_L_" + metric.getName();
+                    boundaries.put(metric, space.getSpaceBoundaryForMetric(monitoredElement, metric));
+                }
+
+                columns += "\tELASTIC\tELASTIC_INT";
+
+                bufferedWriter.write(columns);
+                bufferedWriter.newLine();
+            }
+
+            List<ElasticitySpace.ElasticitySpaceEntry> spaceEntries = space.getSpaceEntries();
+
+            for (ElasticitySpace.ElasticitySpaceEntry entry : spaceEntries) {
+                ServiceMonitoringSnapshot snapshot = entry.getServiceMonitoringSnapshot();
+                MonitoredElementMonitoringSnapshot MonitoredElementMonitoringSnapshot = snapshot.getMonitoredData(monitoredElement);
+                String line = "";
+
+                //add metric values to line
+                for (Metric metric : dataForElement.keySet()) {
+                    if (MonitoredElementMonitoringSnapshot.getMetrics().contains(metric)) {
+                        MetricValue values = MonitoredElementMonitoringSnapshot.getMetricValue(metric);
+
+                        MetricValue[] boundaryForMetric = boundaries.get(metric);
+                        line += "\t" + values + "\t" + boundaryForMetric[1] + "\t" + boundaryForMetric[0];
+                    }
+
+                }
+
+                boolean isClean = entry.getAnalysisReport().isClean();
+                line += "\t" + isClean + "\t" + ((isClean) ? 1 : -1);
+
+                bufferedWriter.write(line);
+                bufferedWriter.newLine();
+
+
+            }
+
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        }
+    }
 // /**
 //     * Metric, Boundary UP, BOUNDARY LOW for all metrics, then if elastic or not boolean, if elastic = 1, else -1
 //     * @param space the elasticity space from which we extract the info for the service element

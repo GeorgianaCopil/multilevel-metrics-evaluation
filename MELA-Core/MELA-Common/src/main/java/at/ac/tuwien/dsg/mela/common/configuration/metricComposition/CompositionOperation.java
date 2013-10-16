@@ -189,7 +189,7 @@ public class CompositionOperation {
                     valuesToBeProcessed.add(elementMonitoringSnapshot.getValueForMetric(referenceMetric).clone());
                 } else {
                     Logger.getRootLogger().log(Level.WARN, "Metric " + referenceMetric + " not found in " + MonitoredElement.getId());
-                    return null;
+//                    return null;
                 }
             } else {
                 List<MonitoredElementMonitoringSnapshot> childSnapshotForSpecificLevel = new ArrayList<MonitoredElementMonitoringSnapshot>();
@@ -206,7 +206,7 @@ public class CompositionOperation {
                         valuesToBeProcessed.add(childSnapshot.getValueForMetric(referenceMetric).clone());
                     } else {
                         Logger.getRootLogger().log(Level.WARN, "Metric " + referenceMetric + " not found in " + childSnapshot.getMonitoredElement().getId());
-                        return null;
+//                        return null;
                     }
                 }
             }

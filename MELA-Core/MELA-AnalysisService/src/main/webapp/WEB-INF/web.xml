@@ -21,6 +21,7 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>/mela_vis/mela.html</welcome-file>
+        <welcome-file>mela.html</welcome-file>
     </welcome-file-list>
+   
 </web-app>

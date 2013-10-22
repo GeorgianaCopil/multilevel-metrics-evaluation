@@ -4,6 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <title>MELA</title>
         <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+
         <style type="text/css">
 
             .node circle {
@@ -34,50 +35,20 @@
     </head>
     <body>
         <div id="chart"></div>
+
         <script type="text/javascript">
             
-            //change these to reflect the MELA RESTfull API location
-           //var deploymentIP = "http://localhost:8080";
-            var deploymentIP = "http://83.212.117.112";
-            var dataSource = deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/monitoringdataJSON");
-            var metricsSource = deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/metriccompositionrules");
-            var elSpaceHTMLURL = deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/mela_vis/elasticitySpaceAndPathway.html?");
+            //            //change these to reflect the MELA RESTfull API location
+            //            var deploymentIP = ".";
+            //            // var deploymentIP = "http://83.212.117.112";
+            //            var dataSource = deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/monitoringdataJSON");
+            //            var metricsSource = deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/metriccompositionrules");
+            //            var elSpaceHTMLURL = deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/mela_vis/elasticitySpaceAndPathway.html?");
 
-            setTimeout(refreshPage, 5000);
             
-            function refreshPage(){
-                d3.json(metricsSource, function (metricsJSON) {
-                    metrics = metricsJSON;
-                });
-
-                
-                d3.json(dataSource, function (json) {
-                    new_root = json;
-       
-                    //if we have root that changed and is not metric, update its tree
-                    if(root!= null && root.type != "metric" && root.name != new_root.name){
-                        root = new_root;
-                        update(root);
-                    }else{
-                        var change = -1;
-                        updateTextOnNode(root, new_root, change);
-                        if (change == -1) {
-                            updateText(root);
-                        } else {
-                            update(new_root);
-                        }
-                    }
-                   
-                });
-                
-                vis.selectAll("path.metricLink").remove();
-                if(fullPath){
-                    highlightMetricsSources(selectedMetric);
-                }else{
-                    highlightMetricsSourcesOneLevel(selectedMetric); 
-                }
-                setTimeout(refreshPage, 5000);
-            }
+             
+            
+            
 
             function contains(children, child) {
                 for (var index = 0; index < children.length; index++) {
@@ -183,7 +154,7 @@
             height = 650, //850
             i = 0,
             duration = 500,
-            depth = 400, //500
+            depth = 400,
             root, metrics;
 
 
@@ -282,23 +253,6 @@
             .text(function (d, i) {
                 return labels[i];
             });
-
-            d3.json(dataSource, function (json) {
-                root = json;
-                root.x0 = height / 2;
-                root.y0 = 0;
-
-
-                function collapse(d) {
-                    if (d.children) {
-                        d._children = d.children;
-                        d._children.forEach(collapse);
-                        d.children = null
-                    }
-                }
-                update(root);
-            });
-
 
             
             function expandTree(rootNode) {
@@ -934,7 +888,7 @@
 
             //open el Space.
             function click(d) {
-                var win=window.open(elSpaceHTMLURL + d.name + "&" + d.type, '_blank');
+                var win=window.open("elasticitySpaceAndPathway.html?" + d.name + "&" + d.type, '_blank');
                 //                  var win=window.open("http://localhost:8080/MELA/mela_vis/multi_bar.html?" + d.name + "&" + d.type, '_blank');
                 //                if (d.children) {
                 //                    d._children = d.children;
@@ -1245,6 +1199,85 @@
                 drawMetricsLines(source, ruleChildMetrics);
 
             }
+            
+            function refreshMonitoringData(){
+            
+                reqMonitoringDataObject=null;
+                 
+                     
+                if(window.XMLHttpRequest){
+                    reqMonitoringDataObject=new XMLHttpRequest();
+                }else {
+                    reqMonitoringDataObject=new ActiveXObject("Microsoft.XMLHTTP");
+                }
+            
+                reqMonitoringDataObject.onreadystatechange=processMonitoringDataResponse;
+                reqMonitoringDataObject.open("GET","./REST_WS/monitoringdataJSON",true);
+                reqMonitoringDataObject.send(null);
+                    
+            }
+            
+            function processMonitoringDataResponse(){
+                if(reqMonitoringDataObject.readyState==4){
+                                 
+                    new_root = JSON.parse(reqMonitoringDataObject.responseText);
+                                   
+                    //if we have root that changed and is not metric, update its tree
+                    if ((root== null ) ||( root.type != "metric" && root.name != new_root.name)){
+                        root = new_root;
+                        update(root);
+                        updateTextOnNode(root, root, change);
+                    }else{
+                        var change = -1;
+                        updateTextOnNode(root, new_root, change);
+                        if (change == -1) {
+                            updateText(root);
+                        } else {
+                            update(new_root);
+                        }
+                    }
+            
+            
+                    vis.selectAll("path.metricLink").remove();
+                    if(fullPath){
+                        highlightMetricsSources(selectedMetric);
+                    }else{
+                        highlightMetricsSourcesOneLevel(selectedMetric); 
+                    }
+                    
+                    setTimeout(refreshMonitoringData, 5000);
+                   
+                }
+            }
+            
+            
+            function refreshMetricsCompositionRules(){
+            
+                reqMetricCompositionRulesObj=null;
+                 
+                     
+                if(window.XMLHttpRequest){
+                    reqMetricCompositionRulesObj=new XMLHttpRequest();
+                }else {
+                    reqMetricCompositionRulesObj=new ActiveXObject("Microsoft.XMLHTTP");
+                }
+            
+                reqMetricCompositionRulesObj.onreadystatechange=processMonitoringDataResponse;
+                reqMetricCompositionRulesObj.open("GET","./REST_WS/metriccompositionrules",true);
+                reqMetricCompositionRulesObj.send(null);
+                    
+            }
+            
+            function processCompositionMetricsResponse(){
+                if(reqMetricCompositionRulesObj.readyState==4){
+                                 
+                    metrics = JSON.parse(reqMetricCompositionRulesObj.responseText);
+                    setTimeout(refreshMetricsCompositionRules, 5000);
+                }
+            }
+                
+            refreshMonitoringData();
+            refreshMetricsCompositionRules();
 
         </script>
     </body>

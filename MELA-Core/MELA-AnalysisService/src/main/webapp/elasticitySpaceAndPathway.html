@@ -29,10 +29,10 @@
     <script src="http://d3js.org/d3.v3.js"></script>
     <script>
 
-        //var deploymentIP = "http://localhost:8080";
-        var deploymentIP = "http://83.212.117.112";
-        var elasticitySpaceURL=deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/elasticityspace");
-        var elasticityPathwayURL=deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/elasticitypathway");
+        //        var deploymentIP = "http://localhost:8080";
+        //        //var deploymentIP = "http://83.212.117.112";
+        //        var elasticitySpaceURL=deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/elasticityspace");
+        //        var elasticityPathwayURL=deploymentIP.concat("/MELA-AnalysisService-0.1-SNAPSHOT/REST_WS/elasticitypathway");
 
         var margin = {top:20, right:20, bottom:30, left:100},
         width = 500 - margin.left - margin.right,
@@ -422,94 +422,134 @@
         
         document.title = vars[0]+ ": Elasticity Analysis";
        
-        function drawElSpace(vars){   
-            
-            //http request, can do POST to get the Elasticity Space   
-            d3.xhr(elasticitySpaceURL,"application/xml").post("<MonitoredElement id=\"" + vars[0] + "\" level=\"" + vars[1] + "\"/>",function(error,dimension){
+        function refreshElSpace(){
                 
-                elSpaceDiv.selectAll("h2").remove();
-                elSpaceDiv.selectAll("svg").remove();
-                
-                elSpaceDiv.append("h2").text("Elasticity Space  for " + vars[0]);
-                
-                elSpace = JSON.parse(dimension.response);
-                
-                maxColumns = Math.floor(window.innerWidth/(width + 30));
+            elasticitySpaceRequest=null;
+                     
+            if(window.XMLHttpRequest){
+                elasticitySpaceRequest=new XMLHttpRequest();
+            }else {
+                elasticitySpaceRequest=new ActiveXObject("Microsoft.XMLHTTP");
+            }
             
-                elSpaceSVGHeight = Math.ceil(elSpace.dimensions.length / maxColumns) * (height + margin.left + margin.right);
-             
-                elSpaceSVG = elSpaceDiv.append("svg")           
-                .attr("width",  window.innerWidth)
-                .attr("height", elSpaceSVGHeight)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-                 
-                elSpaceSVG.append("line")
-                .attr("x1", -margin.left)
-                .attr("y1", 0)
-                .attr("x2", window.innerWidth)
-                .attr("y2", 0)
-                .attr("stroke-width", 1)
-                .attr("stroke", "black");
-                 
-                generateElSpaceChart(elSpace, elSpaceSVG, lineThickness, elSpaceColors, -50, 50, width, height, "Time (s)");
-           
-             
-                setTimeout(function () {
-            
-                    drawElSpace(vars);
-                   
-                }, 5000);
-            });
-        
-            
-           
+            elasticitySpaceRequest.onreadystatechange=processElasticitySpaceRequestResponse;
+            elasticitySpaceRequest.open("POST","./REST_WS/elasticityspace",true);
+            elasticitySpaceRequest.setRequestHeader('Content-type', 'application/xml');
+            elasticitySpaceRequest.send("<MonitoredElement id=\"" + vars[0] + "\" level=\"" + vars[1] + "\"/>");
+                    
         }
-        
-        function drawElasticityPathway(vars){
-            //get elasticity pathway
-            d3.xhr(elasticityPathwayURL,"application/xml").post("<MonitoredElement id=\"" + vars[0] + "\" level=\"" + vars[1] + "\"/>",function(error,dimension){
+            
+        function processElasticitySpaceRequestResponse(){
+            if(elasticitySpaceRequest.readyState==4){
+                
+                    
+                elasticitySpace = JSON.parse(elasticitySpaceRequest.responseText);
+                drawElSpace(elasticitySpace,vars)  
                
-                elPthwDiv.selectAll("h2").remove();
-                elPthwDiv.selectAll("svg").remove();
+             
+                setTimeout(refreshElSpace, 5000);
+            }
+        }
+       
+       
+        function refreshElPathway(){
                 
-                elPthwDiv.append("h2").text("Elasticity Pathway  for " + vars[0]);
-                
-                elPthwSVG = elPthwDiv.append("svg")           
-                .attr("width",  window.innerWidth)
-                .attr("height", window.innerHeight)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-              
-                elPthwSVG.append("line")
-                .attr("x1", -margin.left)
-                .attr("y1", 0)
-                .attr("x2", window.innerWidth)
-                .attr("y2", 0)
-                .attr("stroke-width", 1)
-                .attr("stroke", "black");
-                
-                elPthw = JSON.parse(dimension.response);
-                var elSgnChartWidth =  window.innerWidth - 200;
-                
-                if( (elSgnChartWidth / elPthw.neurons.length) > 200 && elPthw.neurons.length>0  ){
-                    elSgnChartWidth = elPthw.neurons.length * 200;  
-                }
-                
-                if( (elSgnChartWidth / elPthw.metricLabels.length) < 200 && elPthw.metricLabels.length>0  ){
-                    elSgnChartWidth = elPthw.metricLabels.length * 200;  
-                }
-                
-                generateElPathwayChart(elPthw, elPthwSVG, elPathwayColors, 0,70 , elSgnChartWidth, height,"Situations Encounter Rate (%)", "Value");
-                setTimeout(function () {
+            elasticityPathwayRequest=null;
+                     
+            if(window.XMLHttpRequest){
+                elasticityPathwayRequest=new XMLHttpRequest();
+            }else {
+                elasticityPathwayRequest=new ActiveXObject("Microsoft.XMLHTTP");
+            }
             
-                    drawElasticityPathway(vars);
-        
-                }, 5000);
-            });
+            elasticityPathwayRequest.onreadystatechange=processElasticityPathwayRequestResponse;
+            elasticityPathwayRequest.open("POST","./REST_WS/elasticitypathway",true);
+            elasticityPathwayRequest.setRequestHeader('Content-type', 'application/xml');
+            elasticityPathwayRequest.send("<MonitoredElement id=\"" + vars[0] + "\" level=\"" + vars[1] + "\"/>");
+                    
+        }
+            
+        function processElasticityPathwayRequestResponse(){
+            if(elasticityPathwayRequest.readyState==4){
+                
+                    
+                elasticityPathway = JSON.parse(elasticityPathwayRequest.responseText);
+                drawElasticityPathway(elasticityPathway, vars)
+             
+                setTimeout(refreshElPathway, 5000);
+            }
+        }
+       
+       
+        function drawElSpace(elSpace,vars){   
+            
+             
+             
+            elSpaceDiv.selectAll("h2").remove();
+            elSpaceDiv.selectAll("svg").remove();
+                
+            elSpaceDiv.append("h2").text("Elasticity Space  for " + vars[0]);
+                
+            maxColumns = Math.floor(window.innerWidth/(width + 30));
+            
+            elSpaceSVGHeight = Math.ceil(elSpace.dimensions.length / maxColumns) * (height + margin.left + margin.right);
+             
+            elSpaceSVG = elSpaceDiv.append("svg")           
+            .attr("width",  window.innerWidth)
+            .attr("height", elSpaceSVGHeight)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                 
+            elSpaceSVG.append("line")
+            .attr("x1", -margin.left)
+            .attr("y1", 0)
+            .attr("x2", window.innerWidth)
+            .attr("y2", 0)
+            .attr("stroke-width", 1)
+            .attr("stroke", "black");
+                 
+            generateElSpaceChart(elSpace, elSpaceSVG, lineThickness, elSpaceColors, -50, 50, width, height, "Time (s)");
+            
         }
         
-        drawElSpace(vars);
-        drawElasticityPathway(vars);
+        function drawElasticityPathway(elPthw, vars){
+             
+               
+            elPthwDiv.selectAll("h2").remove();
+            elPthwDiv.selectAll("svg").remove();
+                
+            elPthwDiv.append("h2").text("Elasticity Pathway  for " + vars[0]);
+                
+            elPthwSVG = elPthwDiv.append("svg")           
+            .attr("width",  window.innerWidth)
+            .attr("height", window.innerHeight)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+              
+            elPthwSVG.append("line")
+            .attr("x1", -margin.left)
+            .attr("y1", 0)
+            .attr("x2", window.innerWidth)
+            .attr("y2", 0)
+            .attr("stroke-width", 1)
+            .attr("stroke", "black");
+                
+                 
+            var elSgnChartWidth =  window.innerWidth - 200;
+                
+            if( (elSgnChartWidth / elPthw.neurons.length) > 200 && elPthw.neurons.length>0  ){
+                elSgnChartWidth = elPthw.neurons.length * 200;  
+            }
+                
+            if( (elSgnChartWidth / elPthw.metricLabels.length) < 200 && elPthw.metricLabels.length>0  ){
+                elSgnChartWidth = elPthw.metricLabels.length * 200;  
+            }
+                
+            generateElPathwayChart(elPthw, elPthwSVG, elPathwayColors, 0,70 , elSgnChartWidth, height,"Situations Encounter Rate (%)", "Value");
+            
+        }
+        
+        refreshElSpace();
+        refreshElPathway();
 
     </script>

@@ -84,7 +84,7 @@ public class MELA_WS {
 //        }
 
 //        Runtime.getRuntime().gc();
-        return systemControl.getElasticityPathwayLazy(element);
+        return systemControl.getElasticityPathway(element);
 //        return ConvertToJSON.convertElasticityPathway(new ArrayList<Metric>(map.keySet()), neurons);
     }
 
@@ -100,7 +100,7 @@ public class MELA_WS {
     @Consumes("application/xml")
     @Produces("application/json")
     public String getLatestElasticitySpaceInJSON(MonitoredElement element) {
-        return systemControl.getElasticitySpaceLazy(element);
+        return systemControl.getElasticityPathway(element);
     }
 
     /**

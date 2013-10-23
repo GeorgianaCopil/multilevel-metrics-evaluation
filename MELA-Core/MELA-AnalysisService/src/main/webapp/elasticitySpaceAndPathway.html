@@ -24,9 +24,17 @@
         stroke-width: 1.5px;
     }
 
+    #loadingIcon{
+        position:absolute;
+        top:50%;
+        left:50%;
+    }
+
 </style>
 <body>
     <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="./spin.js" type="text/javascript"></script>
+    <div id="loadingIcon"></div>
     <script>
 
         //        var deploymentIP = "http://localhost:8080";
@@ -37,9 +45,28 @@
         var margin = {top:20, right:20, bottom:30, left:100},
         width = 500 - margin.left - margin.right,
         height = 300 - margin.top - margin.bottom;
+        
+        var opts = {
+            lines: 20, // The number of lines to draw
+            length: 7, // The length of each line
+            width: 10, // The line thickness
+            radius: 100, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            color: '#000', // #rgb or #rrggbb
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: 'auto', // Top position relative to parent in px
+            left: 'auto', // Left position relative to parent in px
+            visibility: true
+        };
 
-      
-
+        var loadingSpinner = new Spinner(opts);
+        
         function generateElSpaceChart(elSpaceJSON, rootNode, lineThickness, lineColors, xLoc, yLoc, width, height, xAxisLabel) {
             var currentColumn = 0;
             var currentRow = 0;
@@ -406,13 +433,11 @@
         var elPathwayColors = ["#1C4946", "#1F7872", "#72B095", "#DEDBA7", "#D13F31", "#8C9C9A", "#9DB2B1"];
         //       
         var lineThickness = new Array("3px", "3px", "3px");
+        var elSpaceLoaded = false;
+        var elPathwayLoaded = false;
+        
 
-
-        // generateElSpaceChart("space_ws.tsv", svg, lineThickness, new Array("clients", "BOUNDARY_U_clients", "BOUNDARY_L_clients"), colors, 0, 0, width, height, "Time (x5s)", "Clients/h (count)");
-        //    generateElSpaceChart("space_ws.tsv", svg, lineThickness, new Array("responseTime", "BOUNDARY_U_responseTime", "BOUNDARY_L_responseTime"), colors, 0, height + 100, width, height, "Time (x5s)", "ResponseTime (ms)");
-
-        //assumes there is the serivce ID and Type after ? in the URL. example
-        //http://localhost:8080/MELA/mela_vis/lineChart.html?WebServiceTopology&SERVICE_TOPOLOGY
+         
         var query = window.location.search.substring(1);
         var vars = query.split("&");
         
@@ -442,8 +467,14 @@
         function processElasticitySpaceRequestResponse(){
             if(elasticitySpaceRequest.readyState==4){
                 
-                    
+                
                 elasticitySpace = JSON.parse(elasticitySpaceRequest.responseText);
+                elSpaceLoaded = true;
+                if(  elSpaceLoaded && elPathwayLoaded ){
+                    loadingSpinner.stop(); 
+                }
+                
+               
                 drawElSpace(elasticitySpace,vars)  
                
              
@@ -474,6 +505,11 @@
                 
                     
                 elasticityPathway = JSON.parse(elasticityPathwayRequest.responseText);
+                
+                elPathwayLoaded = true;
+                if(elSpaceLoaded && elPathwayLoaded ){
+                    loadingSpinner.stop(); 
+                }
                 drawElasticityPathway(elasticityPathway, vars)
              
                 setTimeout(refreshElPathway, 5000);
@@ -548,6 +584,14 @@
             generateElPathwayChart(elPthw, elPthwSVG, elPathwayColors, 0,70 , elSgnChartWidth, height,"Situations Encounter Rate (%)", "Value");
             
         }
+        
+       
+        function drawSpinner(spinnerContainer){
+            var target = document.getElementById(spinnerContainer);
+            loadingSpinner.spin(target);
+        }
+                
+        drawSpinner('loadingIcon');
         
         refreshElSpace();
         refreshElPathway();

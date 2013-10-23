@@ -1253,6 +1253,7 @@
                     
                     if(new_root.children){
                         loadingSpinner.stop();
+                        setTimeout(refreshMonitoringData, 1000);
                     }
                     
                     //if we have root that changed and is not metric, update its tree
@@ -1277,9 +1278,8 @@
                     }else{
                         highlightMetricsSourcesOneLevel(selectedMetric); 
                     }
-                    
+                     
                     setTimeout(refreshMonitoringData, 5000);
-                   
                 }
             }
             

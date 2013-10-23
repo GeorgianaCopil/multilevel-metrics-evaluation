@@ -191,7 +191,7 @@ public class DataAccess extends AbstractDataAccess {
                 MonitoredElementMonitoringSnapshot monitoredElementMonitoringSnapshot = new MonitoredElementMonitoringSnapshot(structureElement, monitoredMetricValues);
 
                 //also add VM monitoring info to children tree
-                serviceMonitoringSnapshot.getMonitoredData(monitoredElement).addChild(monitoredElementMonitoringSnapshot);
+//                serviceMonitoringSnapshot.getMonitoredData(monitoredElement).addChild(monitoredElementMonitoringSnapshot);
 
                 serviceMonitoringSnapshot.addMonitoredData(monitoredElementMonitoringSnapshot);
             }

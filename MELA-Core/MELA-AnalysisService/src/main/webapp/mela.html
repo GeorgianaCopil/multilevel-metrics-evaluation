@@ -1032,9 +1032,9 @@
                 //               
                 
                 //metric names in D3JS are "value [metricName]" and need to extract the metricName
-                var indexOfFirstBracket = source.name.match(/\[/);
-                var indexOfLastBracket = source.name.match(/\]/);
-                var sourceMetricName = source.name.slice(indexOfFirstBracket.index+1,indexOfLastBracket.index);
+                var indexOfFirstBracket = source.name.match(/[a-zA-Z]/);
+                var indexOfLastBracket = source.name.match(/ \(/);
+                var sourceMetricName = source.name.slice(indexOfFirstBracket.index,indexOfLastBracket.index);
                 
                 var sourceMetricParent = source.parent;
                 
@@ -1098,9 +1098,9 @@
                         var childMetric = sourceMetricParentChildMetrics[j];
                         
                         //metric names in D3JS are "value [metricName]" and need to extract the metricName
-                        var childMetricNameIndexOfFirstBracket = childMetric.name.match(/\[/);
-                        var childMetricNameIndexOfLastBracket = childMetric.name.match(/\]/);
-                        var childMetricName = childMetric.name.slice(childMetricNameIndexOfFirstBracket.index+1,childMetricNameIndexOfLastBracket.index);
+                        var childMetricNameIndexOfFirstBracket = childMetric.name.match(/[a-zA-Z]/);
+                        var childMetricNameIndexOfLastBracket = childMetric.name.match(/ \(/);
+                        var childMetricName = childMetric.name.slice(childMetricNameIndexOfFirstBracket.index,childMetricNameIndexOfLastBracket.index);
                              
                         //get the targeted element IDS
                         targetMonitoredElementIDs = ruleChildMetric.targetMonitoredElementIDs;
@@ -1146,9 +1146,9 @@
                 //               
                 
                 //metric names in D3JS are "value [metricName]" and need to extract the metricName
-                var indexOfFirstBracket = source.name.match(/\[/);
-                var indexOfLastBracket = source.name.match(/\]/);
-                var sourceMetricName = source.name.slice(indexOfFirstBracket.index+1,indexOfLastBracket.index);
+                var indexOfFirstBracket = source.name.match(/[a-zA-Z]/);
+                var indexOfLastBracket = source.name.match(/ \(/);
+                var sourceMetricName = source.name.slice(indexOfFirstBracket.index,indexOfLastBracket.index);
                 
                 var sourceMetricParent = source.parent;
                 
@@ -1212,9 +1212,9 @@
                         var childMetric = sourceMetricParentChildMetrics[j];
                         
                         //metric names in D3JS are "value [metricName]" and need to extract the metricName
-                        var childMetricNameIndexOfFirstBracket = childMetric.name.match(/\[/);
-                        var childMetricNameIndexOfLastBracket = childMetric.name.match(/\]/);
-                        var childMetricName = childMetric.name.slice(childMetricNameIndexOfFirstBracket.index+1,childMetricNameIndexOfLastBracket.index);
+                        var childMetricNameIndexOfFirstBracket = childMetric.name.match(/[a-zA-Z]/);
+                        var childMetricNameIndexOfLastBracket = childMetric.name.match(/ \(/);
+                        var childMetricName = childMetric.name.slice(childMetricNameIndexOfFirstBracket.index,childMetricNameIndexOfLastBracket.index);
                              
                         //get the targeted element IDS
                         targetMonitoredElementIDs = ruleChildMetric.targetMonitoredElementIDs;
@@ -1257,13 +1257,15 @@
             function processMonitoringDataResponse(){
                 if(reqMonitoringDataObject.readyState==4){
                     
-                   
-                                 
+                            
                     new_root = JSON.parse(reqMonitoringDataObject.responseText);
+                    
+                    setTimeout(refreshMonitoringData, 5000);
                     
                     if(new_root.children){
                         loadingSpinner.stop();
-                        setTimeout(refreshMonitoringData, 1000);
+                        d3.select("#A").remove();
+                        //                        setTimeout(refreshMonitoringData, 1000);
                     }
                     
                     //if we have root that changed and is not metric, update its tree
@@ -1282,14 +1284,8 @@
                     }
             
             
-                    vis.selectAll("path.metricLink").remove();
-                    if(fullPath){
-                        highlightMetricsSources(selectedMetric);
-                    }else{
-                        highlightMetricsSourcesOneLevel(selectedMetric); 
-                    }
                      
-                    setTimeout(refreshMonitoringData, 5000);
+                   
                 }
             }
             
@@ -1305,19 +1301,24 @@
                     reqMetricCompositionRulesObj=new ActiveXObject("Microsoft.XMLHTTP");
                 }
             
-                reqMetricCompositionRulesObj.onreadystatechange=processMonitoringDataResponse;
+                reqMetricCompositionRulesObj.onreadystatechange=processCompositionMetricsResponse;
                 reqMetricCompositionRulesObj.open("GET","./REST_WS/metriccompositionrules",true);
                 reqMetricCompositionRulesObj.send(null);
-                
-                
                     
             }
             
             function processCompositionMetricsResponse(){
                 if(reqMetricCompositionRulesObj.readyState==4){
-                                 
+                    setTimeout(refreshMetricsCompositionRules, 5000); 
+                    
                     metrics = JSON.parse(reqMetricCompositionRulesObj.responseText);
-                    setTimeout(refreshMetricsCompositionRules, 5000);
+                    
+                    vis.selectAll("path.metricLink").remove();
+                    if(fullPath){
+                        highlightMetricsSources(selectedMetric);
+                    }else{
+                        highlightMetricsSourcesOneLevel(selectedMetric); 
+                    }
                 }
             }
             
@@ -1328,9 +1329,9 @@
             }
                 
             drawSpinner('A');
-                
-            refreshMonitoringData();
+            
             refreshMetricsCompositionRules();
+            refreshMonitoringData();
 
         </script>
     </body>

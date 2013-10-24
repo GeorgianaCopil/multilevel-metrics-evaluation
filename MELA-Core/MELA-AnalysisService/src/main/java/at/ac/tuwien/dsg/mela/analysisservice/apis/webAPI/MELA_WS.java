@@ -46,7 +46,7 @@ import javax.ws.rs.QueryParam;
 import org.apache.log4j.Level;
 
 /**
- * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at  *
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at *
  *
  */
 @Path("/")
@@ -216,7 +216,7 @@ public class MELA_WS {
     @Produces("application/json")
     public String getLatestMonitoringDataInJSON() {
         return systemControl.getLatestMonitoringDataINJSON();
-     
+
     }
 
     @GET
@@ -236,23 +236,19 @@ public class MELA_WS {
     @Produces("application/json")
     public String getMetricCompositionRules() {
         return systemControl.getMetricCompositionRules();
-        
+
 
     }
 
     @POST
     @Path("/addexecutingactions")
-    public void addExecutingAction(List<Action> executingActions) {
-        for (Action action : executingActions) {
-            systemControl.addExecutingAction(action.getTargetEntityID(), action.getAction());
-        }
+    public void addExecutingAction(Action action) {
+        systemControl.addExecutingAction(action.getTargetEntityID(), action.getAction());
     }
 
     @POST
     @Path("/removeexecutingactions")
-    public void removeExecutingAction(List<Action> executingActions) {
-        for (Action action : executingActions) {
+    public void removeExecutingAction(Action action) {
             systemControl.removeExecutingAction(action.getTargetEntityID(), action.getAction());
-        }
     }
 }

@@ -509,6 +509,7 @@
                 elPathwayLoaded = true;
                 if(elSpaceLoaded && elPathwayLoaded ){
                     loadingSpinner.stop(); 
+                    d3.select("#loadingIcon").remove();
                 }
                 drawElasticityPathway(elasticityPathway, vars)
              

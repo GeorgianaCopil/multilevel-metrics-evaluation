@@ -158,10 +158,10 @@
 
             var margin = {top:10, right:120, bottom:20, left:120},
             width = 3000,
-            height = 650, //850
+            height = 800, //850
             i = 0,
             duration = 500,
-            depth = 400,
+            depth = 450,
             root, metrics;
             
             var opts = {
@@ -322,7 +322,7 @@
                 // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
                     if(!d.type.match(/SERVIC.*|V.*/g)){
-                        d.y=d.depth* depth - 200;
+                        d.y=d.depth* depth - 300;
                         //if the typs is condition, move it a bit more to the left
                         if(d.type=="requirement"){
                             d.y =  d.y - 100;  
@@ -628,7 +628,15 @@
 
                 // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
-                    d.y = d.depth * depth;
+                    if(!d.type.match(/SERVIC.*|V.*/g)){
+                        d.y=d.depth* depth - 250;
+                        //if the typs is condition, move it a bit more to the left
+                        if(d.type=="requirement"){
+                            d.y =  d.y - 100;  
+                        }
+                    }else{
+                        d.y = d.depth * depth;
+                    }
                 });
 
                 // Update the nodes…
@@ -715,7 +723,7 @@
                     return d.value ? -10 : -5;
                 })
                 .attr("text-anchor", function (d) {
-                    return d.value || d.ip || d.children ? "end" : "start";
+                    return  d.ip || d.children ? "end" : "start";
                 })
                 .style("font-size", function (d) {
                     return d.children ? 13 : 13;
@@ -790,7 +798,9 @@
                 });
 
                 nodeUpdate.select("text")
-                .attr("text-anchor", "end")
+                .attr("text-anchor", function (d) {
+                    return   d.ip || d.children ? "end" : "start";
+                })
                 .attr("dy", -5)
                 .attr("dx", -15)
                 .style("font-size", function (d) {
@@ -816,7 +826,7 @@
 
                 nodeExit.select("text")
                 .attr("text-anchor", function (d) {
-                    return d.value || d.ip || d.children ? "end" : "start";
+                    return   d.ip || d.children ? "end" : "start";
                 })
                 .attr("dy", -5)
                 .style("font-size", function (d) {

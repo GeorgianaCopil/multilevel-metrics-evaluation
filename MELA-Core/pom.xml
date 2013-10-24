@@ -17,6 +17,7 @@
 
   <modules>
         <module>MELA-DataService</module>
+        <module>MELA-DataService-tar</module>
         <module>MELA-AnalysisService</module>
         <module>MELA-AnalysisService-tar</module>
         <module>MELA-Common</module>

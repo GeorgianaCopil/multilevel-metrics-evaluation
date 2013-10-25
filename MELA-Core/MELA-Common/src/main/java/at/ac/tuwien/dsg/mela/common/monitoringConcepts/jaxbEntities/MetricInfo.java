@@ -72,40 +72,36 @@ public class MetricInfo {
      * String by Ganglia
      */
     public Object getConvertedValue() {
-        try {
-            if (type.toLowerCase().contains("float") || type.toLowerCase().contains("double")) {
-                try {
-                    if (value == null) {
-                        return new Float(0);
-                    } else {
-                        return Float.parseFloat(value);
-                    }
-                } catch (NumberFormatException e) {
-                    return new Float(Float.NaN);
-                }
-            } else if (type.toLowerCase().contains("int")) {
-                try {
-                    if (value == null) {
-                        return new Integer(0);
-                    } else {
-                        return Integer.parseInt(value);
-                    }
-                } catch (NumberFormatException e) {
-                    return new Float(Float.NaN);
-                }
-            } else {
+
+
+        if (type.toLowerCase().contains("float") || type.toLowerCase().contains("double")) {
+            try {
                 if (value == null) {
-                    return "";
+                    return new Float(0);
                 } else {
-                    return value;
+                    return Float.parseFloat(value);
                 }
+            } catch (NumberFormatException e) {
+                return new Float(Float.NaN);
             }
-        } catch (Exception e) {
-            Logger.getLogger(MetricInfo.class.getName()).log(Level.SEVERE, "Metric \"{0}\" converted from \"{1}\" was null", new Object[]{name, value});
-            e.printStackTrace();
-        } finally {
-            return null;
+        } else if (type.toLowerCase().contains("int")) {
+            try {
+                if (value == null) {
+                    return new Integer(0);
+                } else {
+                    return Integer.parseInt(value);
+                }
+            } catch (NumberFormatException e) {
+                return new Float(Float.NaN);
+            }
+        } else {
+            if (value == null) {
+                return "";
+            } else {
+                return value;
+            }
         }
+
     }
 
     public void setConvertedValue(Object convertedValue) {

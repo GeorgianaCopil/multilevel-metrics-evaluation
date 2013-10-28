@@ -45,6 +45,7 @@ import at.ac.tuwien.dsg.mela.dataservice.dataSource.impl.DataAccess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,7 +238,11 @@ public class SystemControl {
 
     public synchronized ServiceMonitoringSnapshot getRawMonitoringData() {
         if (dataAccess != null) {
-            return dataAccess.getMonitoredData(serviceConfiguration);
+            Date before = new Date();
+            ServiceMonitoringSnapshot monitoredData = dataAccess.getMonitoredData(serviceConfiguration);;
+            Date after = new Date();
+            Configuration.getLogger(this.getClass()).log(Level.WARN, "Raw monitoring data access time in ms:  " + new Date(after.getTime() - before.getTime()).getTime());
+            return monitoredData;
         } else {
             Configuration.getLogger(this.getClass()).log(Level.WARN, "Data Access source not set yet on SystemControl");
             return new ServiceMonitoringSnapshot();
@@ -331,7 +336,7 @@ public class SystemControl {
     public synchronized ServiceMonitoringSnapshot getLatestMonitoringData() {
         return latestMonitoringData;
     }
- 
+
     private synchronized void startMonitoring() {
         monitoringTimer = new Timer();
 
@@ -339,9 +344,9 @@ public class SystemControl {
             @Override
             public void run() {
                 if (serviceConfiguration != null) {
-                 
+
                     ServiceMonitoringSnapshot monitoringData = getRawMonitoringData();
- 
+
                     if (monitoringData != null) {
                         historicalMonitoringData.add(monitoringData);
                         //remove the oldest and add the new value always
@@ -371,7 +376,7 @@ public class SystemControl {
         };
         //repeat the monitoring every monitoringIntervalInSeconds seconds 
         monitoringTimer.schedule(task, 0, monitoringIntervalInSeconds * 1000);
- 
+
     }
 
     public synchronized void stopMonitoring() {
@@ -388,6 +393,7 @@ public class SystemControl {
             elSpaceJSON.put("name", "ElPathway");
             return elSpaceJSON.toJSONString();
         }
+
 
 
         int recordsCount = aggregatedMonitoringDataSQLAccess.getRecordsCount();
@@ -471,6 +477,9 @@ public class SystemControl {
 
     //uses a lot of memory (all directly in memory)
     public synchronized String getElasticityPathway(MonitoredElement element) {
+
+
+
         //if no service configuration, we can't have elasticity space function
         //if no compositionRulesConfiguration we have no data
         if (!Configuration.isElasticityAnalysisEnabled() || serviceConfiguration == null && compositionRulesConfiguration != null) {
@@ -479,6 +488,9 @@ public class SystemControl {
             elSpaceJSON.put("name", "ElPathway");
             return elSpaceJSON.toJSONString();
         }
+
+        Date before = new Date();
+
 
 //        int recordsCount = aggregatedMonitoringDataSQLAccess.getRecordsCount();
 
@@ -512,8 +524,14 @@ public class SystemControl {
             elSpaceJSON.put("name", "Service not found");
             return elSpaceJSON.toJSONString();
         } else {
-            return ConvertToJSON.convertElasticityPathway(metrics, neurons);
+            String converted = ConvertToJSON.convertElasticityPathway(metrics, neurons);
+            Date after = new Date();
+            Configuration.getLogger(this.getClass()).log(Level.WARN, "El Pathway cpt time in ms:  " + new Date(after.getTime() - before.getTime()).getTime());
+            return converted;
         }
+
+
+
     }
 
     public synchronized String getElasticitySpace(MonitoredElement element) {
@@ -526,6 +544,8 @@ public class SystemControl {
             elSpaceJSON.put("name", "ElSpace");
             return elSpaceJSON.toJSONString();
         }
+
+        Date before = new Date();
 
 //        int recordsCount = aggregatedMonitoringDataSQLAccess.getRecordsCount();
 
@@ -548,11 +568,17 @@ public class SystemControl {
             elasticitySpaceFunction.setRequirements(requirements);
         }
 
+        Date after = new Date();
+        Configuration.getLogger(this.getClass()).log(Level.WARN, "El Space cpt time in ms:  " + new Date(after.getTime() - before.getTime()).getTime());
         return jsonRepr;
     }
 
     public synchronized String getLatestMonitoringDataINJSON() {
-        return ConvertToJSON.convertMonitoringSnapshot(latestMonitoringData, requirements, actionsInExecution);
+        Date before = new Date();
+        String converted = ConvertToJSON.convertMonitoringSnapshot(latestMonitoringData, requirements, actionsInExecution);
+        Date after = new Date();
+        Configuration.getLogger(this.getClass()).log(Level.WARN, "Get Mon Data time in ms:  " + new Date(after.getTime() - before.getTime()).getTime());
+        return converted;
     }
 
     public synchronized String getMetricCompositionRules() {

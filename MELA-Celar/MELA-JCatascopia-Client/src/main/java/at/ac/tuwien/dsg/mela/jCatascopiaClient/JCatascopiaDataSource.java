@@ -76,49 +76,98 @@ public class JCatascopiaDataSource implements DataSourceI {
         //map for holding the IP, and HostInfo, as maybe multiple JCatascopia agents can belong to the same VM, make sure we merge all data
         Map<String, HostInfo> hostsMap = new HashMap<String, HostInfo>();
 
-        updateJCatascopiaAgents(poolOfAgents);
-        
-        for (JCatascopiaAgent agent : poolOfAgents) {
-            //if agent is active
-            if (agent.getStatus().equalsIgnoreCase("UP")) {
-                HostInfo hostInfo = null;
-                if (hostsMap.containsKey(agent.getIp())) {
-                    hostInfo = hostsMap.get(agent.getIp());
-                } else {
-                    hostInfo = new HostInfo();
-                    hostInfo.setIp(agent.getIp());
-                    hostInfo.setName(agent.getIp());
-                    hostsMap.put(hostInfo.getIp(), hostInfo);
-                }
+//        updateJCatascopiaAgents(poolOfAgents);
 
-                //update metrics using REST API from JCatascopia
-                updateMetricsForJCatascopiaAgent(agent);
-                getLatestMetricsValuesForJCatascopiaAgent(agent);
+        //added to improve query time
+        if (poolOfAgents.isEmpty()) {
+            updateJCatascopiaAgents(poolOfAgents);
+            System.err.println("Updating agents");
 
-                for (JCatascopiaMetric metric : agent.getAgentMetrics()) {
-                    MetricInfo info = new MetricInfo();
-                    info.setName(metric.getName());
-                    info.setType(metric.getType());
-                    info.setUnits(metric.getUnit());
-                    info.setValue(metric.getValue());
-                    info.setSource(metric.getGroup());
-                    Object o = info.getConvertedValue();
-//                    MetricValue metricValue = new MetricValue(o);
-                    if (o == null) {
-//                        Logger.getLogger(JCatascopiaDataSource.class.getName()).log(Level.SEVERE, "Metric \"{0}\" converted from \"{1}\" was null", new Object[]{metric.getName(), metric.getValue()});
+            for (JCatascopiaAgent agent : poolOfAgents) {
+                //if agent is active
+                if (agent.getStatus().equalsIgnoreCase("UP")) {
+                    HostInfo hostInfo = null;
+                    if (hostsMap.containsKey(agent.getIp())) {
+                        hostInfo = hostsMap.get(agent.getIp());
                     } else {
-                        hostInfo.getMetrics().add(info);
+                        hostInfo = new HostInfo();
+                        hostInfo.setIp(agent.getIp());
+                        hostInfo.setName(agent.getIp());
+                        hostsMap.put(hostInfo.getIp(), hostInfo);
                     }
-//                   String meString = metricValue.getValueRepresentation();
-                    //add the metric to the hosts info
 
+                    //update metrics using REST API from JCatascopia
+                    updateMetricsForJCatascopiaAgent(agent);
+                    getLatestMetricsValuesForJCatascopiaAgent(agent);
+
+                    for (JCatascopiaMetric metric : agent.getAgentMetrics()) {
+                        MetricInfo info = new MetricInfo();
+                        info.setName(metric.getName());
+                        info.setType(metric.getType());
+                        info.setUnits(metric.getUnit());
+                        info.setValue(metric.getValue());
+                        info.setSource(metric.getGroup());
+                        Object o = info.getConvertedValue();
+//                    MetricValue metricValue = new MetricValue(o);
+                        if (o == null) {
+//                        Logger.getLogger(JCatascopiaDataSource.class.getName()).log(Level.SEVERE, "Metric \"{0}\" converted from \"{1}\" was null", new Object[]{metric.getName(), metric.getValue()});
+                        } else {
+                            hostInfo.getMetrics().add(info);
+                        }
+//                   String meString = metricValue.getValueRepresentation();
+                        //add the metric to the hosts info
+
+                    }
+
+                } else {
+                    Logger.getLogger(JCatascopiaDataSource.class.getName()).log(Level.SEVERE, "Agent {0} with IP {1} is down", new Object[]{agent.getId(), agent.getIp()});
                 }
 
-            } else {
-                Logger.getLogger(JCatascopiaDataSource.class.getName()).log(Level.SEVERE, "Agent {0} with IP {1} is down", new Object[]{agent.getId(), agent.getIp()});
+            }
+        } else {
+            //added to improve time
+
+            for (JCatascopiaAgent agent : poolOfAgents) {
+                //if agent is active
+                if (agent.getStatus().equalsIgnoreCase("UP")) {
+                    HostInfo hostInfo = null;
+                    if (hostsMap.containsKey(agent.getIp())) {
+                        hostInfo = hostsMap.get(agent.getIp());
+                    } else {
+                        hostInfo = new HostInfo();
+                        hostInfo.setIp(agent.getIp());
+                        hostInfo.setName(agent.getIp());
+                        hostsMap.put(hostInfo.getIp(), hostInfo);
+                    }
+
+                    getLatestMetricsValuesForJCatascopiaAgent(agent);
+
+                    for (JCatascopiaMetric metric : agent.getAgentMetrics()) {
+                        MetricInfo info = new MetricInfo();
+                        info.setName(metric.getName());
+                        info.setType(metric.getType());
+                        info.setUnits(metric.getUnit());
+                        info.setValue(metric.getValue());
+                        info.setSource(metric.getGroup());
+                        Object o = info.getConvertedValue();
+//                    MetricValue metricValue = new MetricValue(o);
+                        if (o == null) {
+//                        Logger.getLogger(JCatascopiaDataSource.class.getName()).log(Level.SEVERE, "Metric \"{0}\" converted from \"{1}\" was null", new Object[]{metric.getName(), metric.getValue()});
+                        } else {
+                            hostInfo.getMetrics().add(info);
+                        }
+//                   String meString = metricValue.getValueRepresentation();
+                        //add the metric to the hosts info
+
+                    }
+
+                } else {
+                    Logger.getLogger(JCatascopiaDataSource.class.getName()).log(Level.SEVERE, "Agent {0} with IP {1} is down", new Object[]{agent.getId(), agent.getIp()});
+                }
             }
 
         }
+
 
         //add metrics to clusterInfo
         clusterInfo.setHostsInfo(hostsMap.values());

@@ -249,6 +249,6 @@ public class MELA_WS {
     @POST
     @Path("/removeexecutingactions")
     public void removeExecutingAction(Action action) {
-            systemControl.removeExecutingAction(action.getTargetEntityID(), action.getAction());
+        systemControl.removeExecutingAction(action.getTargetEntityID(), action.getAction());
     }
 }

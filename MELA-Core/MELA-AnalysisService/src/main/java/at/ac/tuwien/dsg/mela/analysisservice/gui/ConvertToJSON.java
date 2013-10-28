@@ -336,7 +336,7 @@ public class ConvertToJSON {
                         if(entry.getKey().getName().contains("serviceID")){
                             continue;
                         }
-                        metric.put("name", entry.getValue().getValueRepresentation() + " [" + entry.getKey().getName() + "]");
+                        metric.put("name", entry.getValue().getValueRepresentation() + " [ " + entry.getKey().getName() + " (" + entry.getKey().getMeasurementUnit() + ") ]");
                         metric.put("type", "metric");
 
                         //if we have requirements for this service element ID

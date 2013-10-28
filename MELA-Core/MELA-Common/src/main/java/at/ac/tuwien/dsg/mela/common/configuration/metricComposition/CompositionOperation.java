@@ -205,7 +205,7 @@ public class CompositionOperation {
                     if (childSnapshot.containsMetric(referenceMetric)) {
                         valuesToBeProcessed.add(childSnapshot.getValueForMetric(referenceMetric).clone());
                     } else {
-                        Logger.getRootLogger().log(Level.WARN, "Metric " + referenceMetric + " not found in " + childSnapshot.getMonitoredElement().getId());
+//                        Logger.getRootLogger().log(Level.WARN, "Metric " + referenceMetric + " not found in " + childSnapshot.getMonitoredElement().getId());
 //                        return null;
                     }
                 }

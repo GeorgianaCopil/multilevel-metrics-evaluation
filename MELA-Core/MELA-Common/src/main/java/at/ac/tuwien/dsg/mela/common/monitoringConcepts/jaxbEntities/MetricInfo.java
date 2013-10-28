@@ -1,11 +1,13 @@
 /**
- * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group E184
+ * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group
+ * E184
  *
- * This work was partially supported by the European Commission in terms of the CELAR FP7 project (FP7-ICT-2011-8 \#317790)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
+ * This work was partially supported by the European Commission in terms of the
+ * CELAR FP7 project (FP7-ICT-2011-8 \#317790)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,53 +17,41 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package at.ac.tuwien.dsg.mela.common.monitoringConcepts.jaxbEntities;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Author: Daniel Moldovan 
- * E-Mail: d.moldovan@dsg.tuwien.ac.at 
-
- **/
-
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at *
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "METRIC")
 public class MetricInfo {
 
     @XmlAttribute(name = "NAME", required = true)
     private String name;
-
     @XmlAttribute(name = "VAL", required = true)
     private String value;
-
     @XmlAttribute(name = "TYPE", required = true)
     private String type;
-
     @XmlAttribute(name = "UNITS")
     private String units;
-
     @XmlAttribute(name = "TN")
     private String tn;
-
     @XmlAttribute(name = "TMAX")
     private String tmax;
-
     @XmlAttribute(name = "DMAX")
     private String dmax;
-
     @XmlAttribute(name = "SLOPE")
     private String slope;
-
     private Object convertedValue;
-
     @XmlAttribute(name = "SOURCE")
     private String source;
-
     @XmlElement(name = "EXTRA_DATA")
     private Collection<ExtraDataInfo> gangliaExtraDataInfoCollection;
 
@@ -78,27 +68,41 @@ public class MetricInfo {
     }
 
     /**
-     * @return Float, Integer or String representations of the value stored as String by Ganglia
+     * @return Float, Integer or String representations of the value stored as
+     * String by Ganglia
      */
     public Object getConvertedValue() {
+
+
         if (type.toLowerCase().contains("float") || type.toLowerCase().contains("double")) {
-            try{
-                return Float.parseFloat(value);
-            }catch(NumberFormatException e){
-               return new Float(Float.NaN);
+            try {
+                if (value == null) {
+                    return new Float(0);
+                } else {
+                    return Float.parseFloat(value);
+                }
+            } catch (NumberFormatException e) {
+                return new Float(Float.NaN);
             }
         } else if (type.toLowerCase().contains("int")) {
-            try{
-                return Integer.parseInt(value);
-            }catch(NumberFormatException e){
+            try {
+                if (value == null) {
+                    return new Integer(0);
+                } else {
+                    return Integer.parseInt(value);
+                }
+            } catch (NumberFormatException e) {
                 return new Float(Float.NaN);
             }
         } else {
-            return value;
+            if (value == null) {
+                return "";
+            } else {
+                return value;
+            }
         }
+
     }
-
-
 
     public void setConvertedValue(Object convertedValue) {
         this.convertedValue = convertedValue;
@@ -178,17 +182,17 @@ public class MetricInfo {
 
     @Override
     public String toString() {
-        String info = "GangliaMetricInfo{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                ", type='" + type + '\'' +
-                ", units='" + units + '\'' +
-                ", tn='" + tn + '\'' +
-                ", tmax='" + tmax + '\'' +
-                ", dmax='" + dmax + '\'' +
-                ", slope='" + slope + '\'' +
-                ", source='" + source + '\'' +
-                ", gangliaExtraDataInfoCollection=";
+        String info = "GangliaMetricInfo{"
+                + "name='" + name + '\''
+                + ", value='" + value + '\''
+                + ", type='" + type + '\''
+                + ", units='" + units + '\''
+                + ", tn='" + tn + '\''
+                + ", tmax='" + tmax + '\''
+                + ", dmax='" + dmax + '\''
+                + ", slope='" + slope + '\''
+                + ", source='" + source + '\''
+                + ", gangliaExtraDataInfoCollection=";
 
         for (ExtraDataInfo dataInfo : gangliaExtraDataInfoCollection) {
             info += "\t " + dataInfo.toString() + "\n";

@@ -321,7 +321,9 @@
 
                 //                // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
-                    if(!d.type.match(/SERVIC.*|V.*/g)){
+                    if (d.type =="requirement"){
+                        d.y=2/3 * d.depth* depth; 
+                    }else if(!d.type.match(/SERVIC.*|V.*/g) || (d.type =="requirement")){
                         if(d.parent.children){
                             var hasComplexChildren;
                             var children = d.parent.children;
@@ -344,10 +346,6 @@
                             }
                         }
                        
-                        //if the typs is condition, move it a bit more to the left
-                        if(d.type=="requirement"){
-                            d.y =  d.y - 100;  
-                        }
                     }else{
                         d.y = d.depth * depth;
                     }
@@ -649,7 +647,9 @@
 
                 // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
-                    if(!d.type.match(/SERVIC.*|V.*/g)){
+                    if (d.type =="requirement"){
+                        d.y=2/3 * d.depth* depth;
+                    }else  if(!d.type.match(/SERVIC.*|V.*/g)){
                         if(d.parent.children){
                             var hasComplexChildren;
                             var children = d.parent.children;
@@ -672,10 +672,6 @@
                             }
                         }
                        
-                        //if the typs is condition, move it a bit more to the left
-                        if(d.type=="requirement"){
-                            d.y =  d.y - 100;  
-                        }
                     }else{
                         d.y = d.depth * depth;
                     }

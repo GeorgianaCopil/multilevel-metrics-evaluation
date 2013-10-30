@@ -1,11 +1,13 @@
 /**
- * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group E184
+ * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group
+ * E184
  *
- * This work was partially supported by the European Commission in terms of the CELAR FP7 project (FP7-ICT-2011-8 \#317790)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
+ * This work was partially supported by the European Commission in terms of the
+ * CELAR FP7 project (FP7-ICT-2011-8 \#317790)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,7 +19,6 @@
  */
 package at.ac.tuwien.dsg.mela.analysisservice.gui;
 
-import at.ac.tuwien.dsg.mela.common.requirements.MetricFilter;
 import at.ac.tuwien.dsg.mela.common.requirements.Condition;
 import at.ac.tuwien.dsg.mela.common.monitoringConcepts.MetricValue;
 import at.ac.tuwien.dsg.mela.common.monitoringConcepts.ServiceMonitoringSnapshot;
@@ -34,19 +35,20 @@ import at.ac.tuwien.dsg.mela.common.monitoringConcepts.MonitoredElement;
 import at.ac.tuwien.dsg.mela.analysisservice.utils.Configuration;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.log4j.Level;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-
 /**
- * Author: Daniel Moldovan 
- * E-Mail: d.moldovan@dsg.tuwien.ac.at 
-
- **/
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at  *
+ *
+ */
 public class ConvertToJSON {
 
     private static DecimalFormat df4 = new DecimalFormat("0.####");
@@ -111,7 +113,16 @@ public class ConvertToJSON {
 
         Map<Metric, List<MetricValue>> elementMonitoringData = space.getMonitoredDataForService(MonitoredElement);
 
-        for (Metric metric : elementMonitoringData.keySet()) {
+        //sorting elastiicyt space dimensions in inverse alphabetical order
+        Set<Metric> sortedMetricSet = new TreeSet<Metric>(new Comparator<Metric>() {
+            public int compare(Metric o1, Metric o2) {
+                return -1 * o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        sortedMetricSet.addAll(elementMonitoringData.keySet());
+
+        for (Metric metric : sortedMetricSet) {
             JSONObject spaceDimensionJSON = new JSONObject();
             spaceDimensionJSON.put("name", metric.getName());
             spaceDimensionJSON.put("unit", metric.getMeasurementUnit());
@@ -249,13 +260,12 @@ public class ConvertToJSON {
 //
 //        return string;
 //    }
+    public static String convertMonitoringSnapshot(ServiceMonitoringSnapshot serviceMonitoringSnapshot, Requirements requirements, Map<MonitoredElement, String> actionsInExecution) {
 
-    public static String convertMonitoringSnapshot(ServiceMonitoringSnapshot serviceMonitoringSnapshot, Requirements requirements, Map<MonitoredElement,String> actionsInExecution) {
-
-        if(serviceMonitoringSnapshot == null){
+        if (serviceMonitoringSnapshot == null) {
             return "";
         }
-        
+
         //transform the requirements list in a map which can be used when building the JSON representation
         Map<String, Map<Metric, List<Requirement>>> requirementsMap = new HashMap<String, Map<Metric, List<Requirement>>>();
         if (requirements != null) {
@@ -303,12 +313,12 @@ public class ConvertToJSON {
                 MyPair myPair = processing.remove(0);
                 JSONObject object = myPair.jsonObject;
                 MonitoredElement element = myPair.MonitoredElement;
-                
-                if(actionsInExecution.containsKey(element)){
-                   object.put("attention", true);
-                   object.put("actionName", actionsInExecution.get(element));
+
+                if (actionsInExecution.containsKey(element)) {
+                    object.put("attention", true);
+                    object.put("actionName", actionsInExecution.get(element));
                 }
-                
+
                 JSONArray children = (JSONArray) object.get("children");
                 if (children == null) {
                     children = new JSONArray();
@@ -333,7 +343,7 @@ public class ConvertToJSON {
                     //add metrics
                     for (Map.Entry<Metric, MetricValue> entry : monitoredElementMonitoringSnapshot.getMonitoredData().entrySet()) {
                         JSONObject metric = new JSONObject();
-                        if(entry.getKey().getName().contains("serviceID")){
+                        if (entry.getKey().getName().contains("serviceID")) {
                             continue;
                         }
                         metric.put("name", entry.getValue().getValueRepresentation() + " [ " + entry.getKey().getName() + " (" + entry.getKey().getMeasurementUnit() + ") ]");
@@ -422,10 +432,10 @@ public class ConvertToJSON {
                 continue;
             }
 
-            if(compositionRule.getTargetMonitoredElementLevel() == null){
+            if (compositionRule.getTargetMonitoredElementLevel() == null) {
                 System.out.println(resultingMetric.getName() + " " + resultingMetric.getMeasurementUnit());
             }
-            
+
             JSONObject jsonMetric = new JSONObject();
             jsonMetric.put("name", resultingMetric.getName());
             jsonMetric.put("targetLevel", compositionRule.getTargetMonitoredElementLevel().toString());

@@ -153,7 +153,7 @@
                 var path = rootNode.append("g")
                 .attr("class", "y axis")
                 .attr("x", xLocation )
-                                .style("font-size", "120%")
+                                .style("font-size", "140%")
                 .attr("transform", "translate(0," + (+yLocation + +height) + ")")
                 //                .transition().duration(1000)
                 .call(xAxis);
@@ -165,7 +165,7 @@
                 rootNode.append("g")
                 .attr("class", "y axis")
                 .attr("transform", "translate("+xLocation +",0)")
-                                .style("font-size", "120%")
+                                .style("font-size", "140%")
                 .call(yAxis)
                 
                 
@@ -224,7 +224,7 @@
                 
 
 //                var legendNames = ["Upper Boundary", "Dimension: " + dimension.name, "Lower Boundary" ];
-                var legendNames = ["Upper Boundary", "Dimension: " + dimension.name, "Determined Boundaries" ];
+                var legendNames = ["Upper Boundary", dimension.name, "Determined Boundaries" ];
                 
 //                //upper boundary legend entry
 //                {
@@ -261,7 +261,7 @@
                     .append("g")
                     .data([legendNames[1]])
                     .attr("class", "legend")
-                    .attr("transform", function(d, i) { return "translate("  + (legendNames[0].length *12) + "," + (+yLocation -20 )+ ")"; });
+                    .attr("transform", function(d, i) { return "translate("  + (legendNames[1].length *9) + "," + (+yLocation -20 )+ ")"; });
 
                     legend.append("rect")
                     .attr("x", xLocation  - 18)
@@ -279,7 +279,7 @@
                     legend.append("text")
                     .attr("x", xLocation  - 24)
                     .attr("dy", ".35em")
-                                        .style("font-size", "130%")
+                                        .style("font-size", "160%")
                     .style("text-anchor", "end")
                     .text(function(d) { return d; });
                 }
@@ -308,7 +308,7 @@
                     legend.append("text")
                     .attr("x", xLocation + width - 24)
                     .attr("dy", ".35em")
-                                        .style("font-size", "130%")
+                                        .style("font-size", "160%")
                     .style("text-anchor", "end")
                     .text(function(d) { return d; });
                 }
@@ -423,7 +423,7 @@
             .attr("x", xLocation +5 )
             .attr("y", 9)
             .attr("dy", ".35em")
-            .style("font-size", "125%")
+            .style("font-size", "140%")
             .style("text-anchor", "start")
             .text(function(d) { return d; });
             

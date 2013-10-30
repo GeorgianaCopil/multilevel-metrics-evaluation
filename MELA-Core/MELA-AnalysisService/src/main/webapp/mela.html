@@ -75,74 +75,74 @@
                 }
 
                 node.name = new_root.name;
+                if(!node.children){
+                    node.children = [];
+                }
+               
 
-                if (node.children) {
-
-                    //check if some new nodes have appeared
-                    if (node.children.length < new_root.children.length) {
-                        //for all new children
-                        for (var index = 0; index < new_root.children.length; index++) {
-                            //if the children are not metrics
-                            if (new_root.children[index].type.match(/SERVIC.*|V.*/g)) {
-                                //if new root child DOES NOTP ALLREADY EXIST
-                                if (contains(node.children, new_root.children[index]) == -1) {
-                                    node.children.push(new_root.children[index]);
-                                    update(node);
-                                    change = 0;
-                                }
-                            }
-                        }
-                    }
-
-                    //check if nodes need to be removed
-                    if (node.children.length > new_root.children.length) {
-                        for (var index = 0; index < node.children.length; index++) {
-                            if (node.children[index].type.match(/SERVIC.*|V.*/g)) {
-                                if (contains(new_root.children, node.children[index]) == -1) {
-                                    node.children.splice(index, 1);
-                                    change = 0;
-                                }
-                            }
-                        }
-                    }
-
-                    //remove all metrics, requirements and conditions so that they can be updated
-                    for (var index = 0; index < node.children.length; index++) {
-                        var oldEntry = node.children[index];
-                        if (!oldEntry.type.match(/SERVIC.*|V.*/g)) {
-                            node.children.splice(index, 1);
-                            //start over
-                            index = -1;
-                        }
-                    }
-
-
-                    //add all new metrics so that they can be updated
+                //check if some new nodes have appeared
+                if (node.children.length < new_root.children.length) {
+                    //for all new children
                     for (var index = 0; index < new_root.children.length; index++) {
-                        var newEntry = new_root.children[index];
-                        if (!newEntry.type.match(/SERVIC.*|V.*/g)) {
-                            node.children.push(newEntry);
-                        }
-                    }
-
-                    //update all children not metrics
-                    for (var index = 0; index < node.children.length; index++) {
-                        var oldEntry = node.children[index];
-                        if (oldEntry.type.match(/SERVIC.*|V.*/g)) {
-                            //find the element int the new children that matches this
-                            for (var indexNew = 0; indexNew < new_root.children.length; indexNew++) {
-                                var newEntry = new_root.children[indexNew];
-                                if (newEntry.type.match(/SERVIC.*|V.*/g)) {
-                                    if (oldEntry.name == newEntry.name) {
-                                        updateTextOnNode(oldEntry, newEntry);
-                                    }
-                                }
+                        //if the children are not metrics
+                        if (new_root.children[index].type.match(/SERVIC.*|V.*/g)) {
+                            //if new root child DOES NOT ALLREADY EXIST
+                            if (contains(node.children, new_root.children[index]) == -1) {
+                                node.children.push(new_root.children[index]);
+                                update(node);
+                                change = 0;
                             }
                         }
                     }
                 }
 
+                //check if nodes need to be removed
+                if (node.children.length > new_root.children.length) {
+                    for (var index = 0; index < node.children.length; index++) {
+                        if (node.children[index].type.match(/SERVIC.*|V.*/g)) {
+                            if (contains(new_root.children, node.children[index]) == -1) {
+                                node.children.splice(index, 1);
+                                change = 0;
+                            }
+                        }
+                    }
+                }
 
+                //remove all metrics, requirements and conditions so that they can be updated
+                for (var index = 0; index < node.children.length; index++) {
+                    var oldEntry = node.children[index];
+                    if (!oldEntry.type.match(/SERVIC.*|V.*/g)) {
+                        node.children.splice(index, 1);
+                        //start over
+                        index = -1;
+                    }
+                }
+
+
+                //add all new metrics so that they can be updated
+                for (var index = 0; index < new_root.children.length; index++) {
+                    var newEntry = new_root.children[index];
+                    if (!newEntry.type.match(/SERVIC.*|V.*/g)) {
+                        node.children.push(newEntry);
+                    }
+                }
+
+                //update all children not metrics
+                for (var index = 0; index < node.children.length; index++) {
+                    var oldEntry = node.children[index];
+                    if (oldEntry.type.match(/SERVIC.*|V.*/g)) {
+                        //find the element int the new children that matches this
+                        for (var indexNew = 0; indexNew < new_root.children.length; indexNew++) {
+                            var newEntry = new_root.children[indexNew];
+                            if (newEntry.type.match(/SERVIC.*|V.*/g)) {
+                                if (oldEntry.name == newEntry.name) {
+                                    updateTextOnNode(oldEntry, newEntry);
+                                }
+                            }
+                        }
+                    }
+                }
+               
             }
 
            
@@ -318,7 +318,7 @@
 
                 // Compute the new tree layout.
                 var nodes = tree.nodes(root).reverse();
-
+                 
                 //                // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
                     if (d.type =="requirement"){
@@ -1011,10 +1011,7 @@
                
             }
             
-            
-            
-
-
+             
             function showContent(d, show) {
                 if (!show && d.children) {
                     d._children = d.children;
@@ -1027,9 +1024,7 @@
                 }
 
             }
- 
-
-
+  
             function drawMetricsLines(source, componentsToLink, link) {
 
                 for (var i = 0;i < componentsToLink.length; i++) {

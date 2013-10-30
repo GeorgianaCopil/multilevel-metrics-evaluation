@@ -157,11 +157,11 @@
             var auxRect = "m -32,5 0,-13.25825 30.14043,0 0,13.25825 z"
 
             var margin = {top:10, right:120, bottom:20, left:120},
-            width = 3000,
-            height = 800, //850
+            width = window.innerWidth ,
+            height = window.innerHeight - 100, //850
             i = 0,
             duration = 500,
-            depth = 450,
+            depth = width/4.5,
             root, metrics;
             
             var opts = {
@@ -319,10 +319,31 @@
                 // Compute the new tree layout.
                 var nodes = tree.nodes(root).reverse();
 
-                // Normalize for fixed-depth.
+                //                // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
                     if(!d.type.match(/SERVIC.*|V.*/g)){
-                        d.y=d.depth* depth - 300;
+                        if(d.parent.children){
+                            var hasComplexChildren;
+                            var children = d.parent.children;
+                            if (children) {
+                                for (var i = children.length - 1; i--;) {
+                                    if (children[i].type.match(/SERVIC.*|V.*/g)){
+                                        hasComplexChildren = true;
+                                        break;
+                                    }
+                                }
+                                if(hasComplexChildren){
+                                    d.y=d.parent.depth * depth;
+                                    if(d.y == 0){
+                                        d.y = depth/3;
+                                        d.x = d.x + 50;
+                                    }
+                                }else{
+                                    d.y=6/7*d.depth* depth;
+                                }
+                            }
+                        }
+                       
                         //if the typs is condition, move it a bit more to the left
                         if(d.type=="requirement"){
                             d.y =  d.y - 100;  
@@ -429,7 +450,7 @@
                     }
                 })
 
-                console.log(node.name)
+                //console.log(node.name)
 
 
                 nodeUpdate.select("path")
@@ -629,7 +650,28 @@
                 // Normalize for fixed-depth.
                 nodes.forEach(function (d) {
                     if(!d.type.match(/SERVIC.*|V.*/g)){
-                        d.y=d.depth* depth - 250;
+                        if(d.parent.children){
+                            var hasComplexChildren;
+                            var children = d.parent.children;
+                            if (children) {
+                                for (var i = children.length - 1; i--;) {
+                                    if (children[i].type.match(/SERVIC.*|V.*/g)){
+                                        hasComplexChildren = true;
+                                        break;
+                                    }
+                                }
+                                if(hasComplexChildren){
+                                    d.y=d.parent.depth * depth;
+                                    if(d.y == 0){
+                                        d.y = depth/3;
+                                        d.x = d.x + 50;
+                                    }
+                                }else{
+                                    d.y=6/7*d.depth* depth;
+                                }
+                            }
+                        }
+                       
                         //if the typs is condition, move it a bit more to the left
                         if(d.type=="requirement"){
                             d.y =  d.y - 100;  
@@ -755,7 +797,7 @@
                     //                    }
                 })
                 //.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-                console.log(node.name)
+                //console.log(node.name)
                  
                 nodeUpdate.select("circle")
                 .attr("r", function (d) {
@@ -851,6 +893,7 @@
                     return d.target.id;
                 });
 
+                //TODO: test if works without this.
                 // Enter any new links at the parent's previous position.
                 link.enter().insert("path", "g")
                 .attr("class", "link")
@@ -1121,7 +1164,7 @@
                         
                     }
                 }
-                console.log(ruleChildMetrics)
+                //console.log(ruleChildMetrics)
                 drawMetricsLines(source, ruleChildMetrics);
 
             }
@@ -1232,7 +1275,7 @@
                         
                     }
                 }
-                console.log(ruleChildMetrics)
+                //console.log(ruleChildMetrics)
                 drawMetricsLines(source, ruleChildMetrics);
 
             }
@@ -1272,7 +1315,7 @@
                     if ((root== null ) ||( root.type != "metric" && root.name != new_root.name)){
                         root = new_root;
                         update(root);
-                        updateTextOnNode(root, root, change);
+                        //                        updateTextOnNode(root, root, change);
                     }else{
                         var change = -1;
                         updateTextOnNode(root, new_root, change);
@@ -1282,10 +1325,6 @@
                             update(new_root);
                         }
                     }
-            
-            
-                     
-                   
                 }
             }
             

@@ -74,11 +74,11 @@ public class SystemControl {
     //used if somewhone wants freshest data
     private ServiceMonitoringSnapshot latestMonitoringData;
     //interval at which RAW monitoring data is collected
-    private int monitoringIntervalInSeconds = Configuration.getMonitoringIntervalInSeconds();
+    private int monitoringIntervalInSeconds = Configuration.getDataPoolingInterval();
     //interval over which raw monitoring data is aggregated.
     //example: for monitoringIntervalInSeconds at 5 seconds, and aggregation at 30, 
     //means 6 monitoring snapshots are aggregated into 1
-    private int aggregationWindowsCount = Configuration.getMonitoringAggregationIntervalInSeconds();
+    private int aggregationWindowsCount = Configuration.getDataAggregationWindows();
     private Timer monitoringTimer;
     //used in determining the service elasticity space
     private ElasticitySpaceFunction elasticitySpaceFunction;
@@ -344,13 +344,13 @@ public class SystemControl {
             @Override
             public void run() {
                 if (serviceConfiguration != null) {
-
+                    Configuration.getLogger(this.getClass()).log(Level.WARN, "Refreshing data");
                     ServiceMonitoringSnapshot monitoringData = getRawMonitoringData();
 
                     if (monitoringData != null) {
                         historicalMonitoringData.add(monitoringData);
                         //remove the oldest and add the new value always
-                        if (historicalMonitoringData.size() > aggregationWindowsCount / monitoringIntervalInSeconds) {
+                        if (historicalMonitoringData.size() > aggregationWindowsCount) {
                             historicalMonitoringData.remove(0);
                         }
 
@@ -377,6 +377,7 @@ public class SystemControl {
                 }
             }
         };
+        Configuration.getLogger(this.getClass()).log(Level.WARN, "Scheduling data pool at " + monitoringIntervalInSeconds + " seconds");
         //repeat the monitoring every monitoringIntervalInSeconds seconds 
         monitoringTimer.schedule(task, 0, monitoringIntervalInSeconds * 1000);
 

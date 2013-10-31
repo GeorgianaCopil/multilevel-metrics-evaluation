@@ -55,7 +55,7 @@ public class Configuration {
         return Logger.getLogger(loggerClass);
     }
 
-    public static int getMonitoringAggregationIntervalInSeconds() {
+    public static int getDataPoolingInterval() {
         if (configuration.containsKey("DATA_COLLECTION_INTERVAL_IN_SECONDS")) {
             return Integer.parseInt(configuration.getProperty("DATA_COLLECTION_INTERVAL_IN_SECONDS"));
         } else {
@@ -63,7 +63,7 @@ public class Configuration {
         }
     }
 
-    public static int getMonitoringIntervalInSeconds() {
+    public static int getDataAggregationWindows() {
         if (configuration.containsKey("DATA_AGGREGATION_WINDOWS")) {
             return Integer.parseInt(configuration.getProperty("DATA_AGGREGATION_WINDOWS"));
         } else {

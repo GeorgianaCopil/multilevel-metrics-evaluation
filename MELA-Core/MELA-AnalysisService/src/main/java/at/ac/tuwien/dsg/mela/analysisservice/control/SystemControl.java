@@ -361,7 +361,10 @@ public class SystemControl {
                         //if we have no composition function, we have no metrics, so it does not make sense to train the elasticity space
                         if (isElasticityEnabled && compositionRulesConfiguration != null) {
                             //write monitoring data in sql
+                            Date before = new Date();
                             aggregatedMonitoringDataSQLAccess.writeMonitoringData(latestMonitoringData);
+                            Date after = new Date();
+                            Configuration.getLogger(this.getClass()).log(Level.WARN, "DaaS data writing time in ms:  " + new Date(after.getTime() - before.getTime()).getTime());
 //                            elasticitySpaceFunction.trainElasticitySpace(latestMonitoringData);
                         }
                     } else {

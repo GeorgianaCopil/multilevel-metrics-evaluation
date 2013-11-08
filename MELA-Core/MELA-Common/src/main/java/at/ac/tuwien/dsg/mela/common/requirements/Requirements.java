@@ -1,11 +1,13 @@
 /**
- * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group E184
+ * Copyright 2013 Technische Universitat Wien (TUW), Distributed Systems Group
+ * E184
  *
- * This work was partially supported by the European Commission in terms of the CELAR FP7 project (FP7-ICT-2011-8 \#317790)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
+ * This work was partially supported by the European Commission in terms of the
+ * CELAR FP7 project (FP7-ICT-2011-8 \#317790)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -23,26 +25,21 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Author: Daniel Moldovan 
- * E-Mail: d.moldovan@dsg.tuwien.ac.at 
-
- **/
+ * Author: Daniel Moldovan E-Mail: d.moldovan@dsg.tuwien.ac.at  *
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "Requirements")
 public class Requirements {
 
     @XmlAttribute(name = "TargetServiceID", required = true)
     private String targetServiceID;
-    
-    
     @XmlAttribute(name = "Name", required = true)
     private String name;
-    
+
     {
         name = UUID.randomUUID().toString();
     }
-    
-
     @XmlElement(name = "Requirement")
     private List<Requirement> requirements;
 
@@ -66,7 +63,7 @@ public class Requirements {
         this.requirements = requirements;
     }
 
-    public void addRequirement(Requirement requirement){
+    public void addRequirement(Requirement requirement) {
         this.requirements.add(requirement);
     }
 
@@ -78,8 +75,7 @@ public class Requirements {
         this.name = name;
     }
 
-
-    public void deleteRequirement(Requirement requirement){
+    public void deleteRequirement(Requirement requirement) {
         this.requirements.remove(requirement);
     }
 
@@ -104,6 +100,19 @@ public class Requirements {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Requirements{" + "name=" + name + '}';
+    }
     
-    
+    public Requirements clone(){
+        Requirements r = new Requirements();
+        r.targetServiceID = targetServiceID;
+        r.name = name;
+        for(Requirement req: requirements){
+            r.addRequirement(req.clone());
+        }
+        return r;
+    }
 }

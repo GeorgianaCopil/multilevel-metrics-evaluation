@@ -117,23 +117,23 @@ public class Condition {
         switch (this.type) {
             case LESS_THAN:
                 //I want what I get to be smaller than what I request
-                respected = (value.get(0).compareTo(testedValue) == 1);
+                respected = (value.get(0).compareTo(testedValue) > 0);
                 break;
             case LESS_EQUAL:
-                respected = (value.get(0).compareTo(testedValue) == 1) || (value.get(0).compareTo(testedValue) == 0);
+                respected = (value.get(0).compareTo(testedValue) >= 0);
                 break;
             case GREATER_THAN:
-                respected = (value.get(0).compareTo(testedValue) == -1);
+                respected = (value.get(0).compareTo(testedValue) < 0);
                 break;
             case GREATER_EQUAL:
-                respected = (value.get(0).compareTo(testedValue) == -1) || (value.get(0).compareTo(testedValue) == 0);
+                respected = (value.get(0).compareTo(testedValue) <= 0);
                 break;
             case EQUAL:
                 respected = (value.get(0).compareTo(testedValue) == 0);
                 break;
             case RANGE:
-                respected = ((value.get(0).compareTo(testedValue) == 1) || (value.get(0).compareTo(testedValue) == 0))
-                        && ((value.get(value.size() - 1).compareTo(testedValue) == -1) || (value.get(value.size() - 1).compareTo(testedValue) == 0));
+                respected = ((value.get(0).compareTo(testedValue) >= 0))
+                        && ((value.get(value.size() - 1).compareTo(testedValue) <= 0));
                 break;
             case ENUMERATION:
                 respected = value.contains(testedValue);

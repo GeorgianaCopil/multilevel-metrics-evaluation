@@ -32,7 +32,6 @@ import at.ac.tuwien.dsg.mela.dataservice.dataSource.AbstractDataAccess;
 import at.ac.tuwien.dsg.mela.common.monitoringConcepts.dataAccess.DataSourceI;
 import at.ac.tuwien.dsg.mela.common.exceptions.DataAccessException;
 import at.ac.tuwien.dsg.mela.dataservice.utils.Configuration;
-import at.ac.tuwien.dsg.mela.jCatascopiaClient.JCatascopiaDataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,9 +56,9 @@ public class DataAccess extends AbstractDataAccess {
     }
 
     public static DataAccess createInstance() {
-        
+
         String accessType = Configuration.getMonitoringDataAccessMethod();
-        
+
         if (accessType.equalsIgnoreCase("LocalGanglia")) {
             Configuration.getLogger(DataAccess.class).log(Level.INFO, "Using Local Ganglia data source");
             DataSourceI dataSource = new LocalGangliaLiveDataSource();
@@ -70,7 +69,18 @@ public class DataAccess extends AbstractDataAccess {
             return new DataAccess(dataSource);
         } else if (accessType.equalsIgnoreCase("JCatascopia")) {
             Configuration.getLogger(DataAccess.class).log(Level.INFO, "Using JCatascopia data source");
-            return new DataAccess(new JCatascopiaDataSource());
+            DataSourceI dataSourceI = null;
+            //load JCatascopia dinamically
+            try {
+                dataSourceI = (DataSourceI) Class.forName("at.ac.tuwien.dsg.mela.jCatascopiaClient.JCatascopiaDataSource").newInstance();
+            } catch (ClassNotFoundException ex) {
+                Configuration.getLogger(DataAccess.class).log(Priority.ERROR, ex);
+            } catch (IllegalAccessException ex) {
+                Configuration.getLogger(DataAccess.class).log(Priority.ERROR, ex);
+            } catch (InstantiationException ex) {
+                Configuration.getLogger(DataAccess.class).log(Priority.ERROR, ex);
+            }
+            return new DataAccess(dataSourceI);
         } else if (accessType.equalsIgnoreCase("Replay")) {
             String monitoringSeqID = Configuration.getStoredMonitoringSequenceID();
             DataSourceI dataSourceI = new GangliaSQLDataSource(monitoringSeqID, "mela", "mela");
@@ -113,10 +123,10 @@ public class DataAccess extends AbstractDataAccess {
             Configuration.getLogger(DataAccess.class).log(Level.ERROR, "Terminating execution");
             System.exit(1);
         }
-        
+
         //extract all VMs from the service structure
 //        Map<MonitoredElement, MonitoredElement> vms = new LinkedHashMap<MonitoredElement, MonitoredElement>();
-        
+
         /**
          * Linear representation of MonitoredElement hierarchical tree. also
          * maintains the three structure using the .children relationship
@@ -148,9 +158,7 @@ public class DataAccess extends AbstractDataAccess {
             }
 
         }
-
-        
-
+ 
         //iterate trough the GangliaCluster, extract each VM monitoring data, build an MonitoredElementMonitoringSnapshot from it and add it to the ServiceMonitoringSnapshot
 
         Collection<HostInfo> gangliaHostsInfo = gangliaClusterInfo.getHostsInfo();
@@ -158,11 +166,11 @@ public class DataAccess extends AbstractDataAccess {
         for (HostInfo gangliaHostInfo : gangliaHostsInfo) {
             HashMap<Metric, MetricValue> monitoredMetricValues = new LinkedHashMap<Metric, MetricValue>();
 //            MonitoredElementMonitoringSnapshot MonitoredElementMonitoringSnapshot = new MonitoredElementMonitoringSnapshot();
-            
+
             //currently we assume for VMs that their ID is their IP (as this si what is unique for them in a single cloud deployment on the same network space)
             MonitoredElement monitoredElement = new MonitoredElement(gangliaHostInfo.getIp());
             monitoredElement.setLevel(MonitoredElement.MonitoredElementLevel.VM);
-            
+
             //represent all monitored metrics in mapToElasticitySpace
             for (MetricInfo gangliaMetricInfo : gangliaHostInfo.getMetrics()) {
                 Metric metric = new Metric();
@@ -176,7 +184,7 @@ public class DataAccess extends AbstractDataAccess {
 //                    monitoredElement.setLevel(MonitoredElement.MonitoredElementLevel.SERVICE_UNIT);
 //                }
             }
-            
+
             //if we have found a metric containing a MonitoredElementID, and if that ID is present in our structure
             //add it as VM level child to the found Service ID (this is the logic under our ganglia deployment so far)
             if (monitoredElement != null && elements.containsKey(monitoredElement)) {
@@ -282,7 +290,7 @@ public class DataAccess extends AbstractDataAccess {
 
             Map<Metric, MetricValue> monitoredMetricValues = new LinkedHashMap<Metric, MetricValue>();
 //            MonitoredElementMonitoringSnapshot MonitoredElementMonitoringSnapshot = new MonitoredElementMonitoringSnapshot();
-            MonitoredElement monitoredElement =  new MonitoredElement(gangliaHostInfo.getIp());
+            MonitoredElement monitoredElement = new MonitoredElement(gangliaHostInfo.getIp());
             //represent all monitored metrics in mapToElasticitySpace
             for (MetricInfo gangliaMetricInfo : gangliaHostInfo.getMetrics()) {
                 Metric metric = new Metric();
@@ -290,7 +298,7 @@ public class DataAccess extends AbstractDataAccess {
                 metric.setMeasurementUnit(gangliaMetricInfo.getUnits());
                 MetricValue metricValue = new MetricValue(gangliaMetricInfo.getConvertedValue());
                 monitoredMetricValues.put(metric, metricValue);
-                
+
             }
             //if we have found a metric containing a MonitoredElementID, and if that ID is present in our structure
             //add it as VM level child to the found Service ID (this is the logic under our ganglia deployment so far)

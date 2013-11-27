@@ -179,6 +179,7 @@ public class DataAccesForTestsOnly extends AbstractDataAccess {
                 MonitoredElementMonitoringSnapshot MonitoredElementMonitoringSnapshot = new MonitoredElementMonitoringSnapshot(vmLevelElement, monitoredMetricValues);
 
                 //also add VM monitoring info to children tree
+                //TODO: CHECK THIS: not sure if this does not introduce errors with SUM. In the case of not automatic structure detection, it DOES
                 serviceMonitoringSnapshot.getMonitoredData(monitoredElement).addChild(MonitoredElementMonitoringSnapshot);
 
                 serviceMonitoringSnapshot.addMonitoredData(MonitoredElementMonitoringSnapshot);

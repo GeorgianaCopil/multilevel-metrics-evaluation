@@ -4,16 +4,22 @@
   
   <groupId>eu.celar.multilevel-metrics-evaluation</groupId>
   <artifactId>MELA-Pom</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <name>MELA</name>
 
-  <parent>
-    <groupId>eu.celar</groupId>
-    <artifactId>distribution</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
+ <!-- Standalone MELA and core sources located for conveninence at https://github.com/tuwiendsg/MELA  -->
 
   <url>https://github.com/CELAR/multilevel-metrics-evaluation</url>
+
+
+	<!-- Repository where MELA standalone files are located. This division makes 
+		MELA usable both inside and outside Celar with minimum effort. -->
+	<repositories>
+		<repository>
+			<id>infosys-repo</id>
+			<url>http://www.infosys.tuwien.ac.at/mvn</url>
+		</repository>
+	</repositories>
 
   <description>
     MELA: implementation of Multi-Level Metrics Evaluation Module
@@ -22,9 +28,13 @@
   <packaging>pom</packaging>
    
    <modules>
-        <module>MELA-Core</module>
-        <module>MELA-Celar</module>
-    </modules>
+        <module>MELA-DataService</module>
+        <module>MELA-DataService-tar</module>
+        <module>MELA-AnalysisService</module>
+        <module>MELA-AnalysisService-tar</module>
+        <module>MELA-Common</module>
+        <module>MELA-JCatascopia-Client</module>
+  </modules>
 
   <issueManagement>
     <system>GitHub Issues</system>

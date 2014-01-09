@@ -7,6 +7,13 @@
   <version>1.0-SNAPSHOT</version>
   <name>MELA</name>
 
+
+  <parent>
+    <groupId>eu.celar</groupId>
+    <artifactId>distribution</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
  <!-- Standalone MELA and core sources located for conveninence at https://github.com/tuwiendsg/MELA  -->
 
   <url>https://github.com/CELAR/multilevel-metrics-evaluation</url>
